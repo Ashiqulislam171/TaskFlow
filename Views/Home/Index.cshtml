@@ -1,8 +1,142 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿
+@{
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold mb-1">Welcome to TaskFlow</h1>
+            <p class="text-secondary mb-0">
+                Organize your work. Focus on what matters.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-controller="Tasks" asp-action="Index"
+               class="btn btn-outline-primary px-4 py-2">
+                My Tasks
+            </a>
+
+            <a asp-controller="Tasks" asp-action="Create"
+               class="btn btn-primary px-4 py-2">
+                + Create New Task
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Total Tasks</p>
+                    <h2 class="fw-bold mb-0">12</h2>
+                    <small class="text-secondary">All your tasks</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Completed</p>
+                    <h2 class="fw-bold text-success mb-0">7</h2>
+                    <small class="text-secondary">Tasks finished</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">In Progress</p>
+                    <h2 class="fw-bold text-primary mb-0">3</h2>
+                    <small class="text-secondary">Currently active</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-secondary mb-2">Pending</p>
+                    <h2 class="fw-bold text-warning mb-0">2</h2>
+                    <small class="text-secondary">Waiting to start</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                    <h4 class="fw-bold mb-1">Recent Tasks</h4>
+                    <p class="text-secondary mb-0">
+                        Your latest activities
+                    </p>
+                </div>
+
+                <a asp-controller="Tasks" asp-action="Index"
+                   class="btn btn-outline-secondary btn-sm">
+                    View All Tasks
+                </a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Complete project report</strong>
+                                <div class="text-secondary small">
+                                    Prepare the final documentation
+                                </div>
+                            </td>
+                            <td><span class="badge bg-danger">High</span></td>
+                            <td><span class="badge bg-primary">In Progress</span></td>
+                            <td>Oct 20, 2026</td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>Review Computer Vision notes</strong>
+                                <div class="text-secondary small">
+                                    Prepare study materials
+                                </div>
+                            </td>
+                            <td><span class="badge bg-warning text-dark">Medium</span></td>
+                            <td><span class="badge bg-secondary">Pending</span></td>
+                            <td>Oct 22, 2026</td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>Update GitHub README</strong>
+                                <div class="text-secondary small">
+                                    Document project setup
+                                </div>
+                            </td>
+                            <td><span class="badge bg-success">Low</span></td>
+                            <td><span class="badge bg-success">Completed</span></td>
+                            <td>Oct 16, 2026</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="small text-secondary mb-0 mt-3">
+                Sample tasks are displayed here temporarily.
+                Real database integration will be added next.
+            </p>
+        </div>
+    </div>
 </div>

@@ -5,3 +5,6 @@ obj/
 *.user
 *.suo
 appsettings.Local.json
+taskflow.db
+taskflow.db-shm
+taskflow.db-wal
