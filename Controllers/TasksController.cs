@@ -60,6 +60,45 @@ public class TasksController : Controller
         return View(tasks);
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> UpdateStatus(
+        int id,
+        string status)
+    {
+        var allowedStatuses = new[]
+        {
+            "Pending",
+            "In Progress",
+            "Completed"
+        };
+
+        if (!allowedStatuses.Contains(status))
+        {
+            return BadRequest("Invalid task status.");
+        }
+
+        var userId = _userManager.GetUserId(User);
+
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t =>
+                t.Id == id && t.UserId == userId);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        task.Status = status;
+
+        await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] =
+            "Task status updated successfully!";
+
+        return RedirectToAction(nameof(Index));
+    }
+
     [HttpGet]
     public IActionResult Create()
     {
@@ -82,6 +121,9 @@ public class TasksController : Controller
 
         _context.Tasks.Add(task);
         await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] =
+            "Task created successfully!";
 
         return RedirectToAction(nameof(Index));
     }
@@ -139,6 +181,9 @@ public class TasksController : Controller
 
         await _context.SaveChangesAsync();
 
+        TempData["SuccessMessage"] =
+            "Task updated successfully!";
+
         return RedirectToAction(nameof(Index));
     }
 
@@ -176,6 +221,9 @@ public class TasksController : Controller
 
         _context.Tasks.Remove(task);
         await _context.SaveChangesAsync();
+
+        TempData["SuccessMessage"] =
+            "Task deleted successfully!";
 
         return RedirectToAction(nameof(Index));
     }
