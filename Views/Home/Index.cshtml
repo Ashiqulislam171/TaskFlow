@@ -5,182 +5,151 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="container-fluid py-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <div>
-            <h1 class="fw-bold mb-1">Welcome to TaskFlow</h1>
-            <p class="text-secondary mb-0">
-                Organize your work. Focus on what matters.
-            </p>
-        </div>
+<div class="container py-4">
 
-        <div class="d-flex gap-2 flex-wrap">
-            <a asp-controller="Tasks" asp-action="Index"
-               class="btn btn-outline-primary px-4 py-2">
-                My Tasks
-            </a>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h1 class="fw-bold">Welcome to TaskFlow</h1>
+                <p class="text-secondary mb-0">
+                    Organize your work and keep track of your progress.
+                </p>
+            </div>
 
             <a asp-controller="Tasks" asp-action="Create"
-               class="btn btn-primary px-4 py-2">
-                + Create New Task
+               class="btn btn-primary">
+                + Create Task
             </a>
         </div>
-    </div>
 
-    @if (User.Identity?.IsAuthenticated != true)
-    {
-        <div class="alert alert-info">
-            Please <a asp-controller="Account" asp-action="Login">log in</a>
-            to see your personal task statistics.
-        </div>
-    }
+        <div class="row g-3 mb-4">
 
-    <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <p class="text-secondary mb-2">Total Tasks</p>
-                    <h2 class="fw-bold mb-0">@Model.TotalTasks</h2>
-                    <small class="text-secondary">All your tasks</small>
+            <div class="col-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">Total Tasks</p>
+                        <h2 class="fw-bold">@Model.TotalTasks</h2>
+                        <small class="text-secondary">All your tasks</small>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <p class="text-secondary mb-2">Completed</p>
-                    <h2 class="fw-bold text-success mb-0">
-                        @Model.CompletedTasks
-                    </h2>
-                    <small class="text-secondary">Tasks finished</small>
+            <div class="col-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">Pending</p>
+                        <h2 class="fw-bold text-warning">@Model.PendingTasks</h2>
+                        <small class="text-secondary">Waiting to start</small>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <p class="text-secondary mb-2">In Progress</p>
-                    <h2 class="fw-bold text-primary mb-0">
-                        @Model.InProgressTasks
-                    </h2>
-                    <small class="text-secondary">Currently active</small>
+            <div class="col-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">In Progress</p>
+                        <h2 class="fw-bold text-primary">@Model.InProgressTasks</h2>
+                        <small class="text-secondary">Currently working</small>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="col-12 col-sm-6 col-lg-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <p class="text-secondary mb-2">Pending</p>
-                    <h2 class="fw-bold text-warning mb-0">
-                        @Model.PendingTasks
-                    </h2>
-                    <small class="text-secondary">Waiting to start</small>
+            <div class="col-6 col-lg-3">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <p class="text-secondary mb-2">Completed</p>
+                        <h2 class="fw-bold text-success">@Model.CompletedTasks</h2>
+                        <small class="text-secondary">Tasks finished</small>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <div>
-                    <h4 class="fw-bold mb-1">Recent Tasks</h4>
-                    <p class="text-secondary mb-0">
-                        Your latest activities
-                    </p>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="fw-bold mb-1">Recent Tasks</h4>
+                        <p class="text-secondary mb-0">
+                            Your latest tasks at a glance.
+                        </p>
+                    </div>
+
+                    <a asp-controller="Tasks" asp-action="Index"
+                       class="btn btn-outline-primary">
+                        View All
+                    </a>
                 </div>
 
-                <a asp-controller="Tasks" asp-action="Index"
-                   class="btn btn-outline-secondary btn-sm">
-                    View All Tasks
-                </a>
-            </div>
-
-            @if (Model.RecentTasks.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th>Task</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Due Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var task in Model.RecentTasks)
-                            {
+                @if (Model.RecentTasks.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <strong>@task.Title</strong>
-                                        @if (!string.IsNullOrWhiteSpace(task.Description))
-                                        {
-                                            <div class="text-secondary small">
-                                                @task.Description
-                                            </div>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        @if (task.Priority == "High")
-                                        {
-                                            <span class="badge bg-danger">High</span>
-                                        }
-                                        else if (task.Priority == "Medium")
-                                        {
-                                            <span class="badge bg-warning text-dark">Medium</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-success">@task.Priority</span>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        @if (task.Status == "Completed")
-                                        {
-                                            <span class="badge bg-success">Completed</span>
-                                        }
-                                        else if (task.Status == "In Progress")
-                                        {
-                                            <span class="badge bg-primary">In Progress</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">@task.Status</span>
-                                        }
-                                    </td>
-
-                                    <td>
-                                        @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
-                                    </td>
+                                    <th>Task</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <h5>No tasks to display yet</h5>
-                    <p class="text-secondary">
-                        Create your first task to see it here.
-                    </p>
+                            </thead>
 
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
+                            <tbody>
+                                @foreach (var task in Model.RecentTasks)
+                                {
+                                    <tr>
+                                        <td>
+                                            <strong>@task.Title</strong>
+                                        </td>
+                                        <td>@task.Priority</td>
+                                        <td>@task.Status</td>
+                                        <td>
+                                            @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center py-5">
+                        <h5>No tasks yet</h5>
+                        <p class="text-secondary">
+                            Create your first task to see your dashboard statistics.
+                        </p>
                         <a asp-controller="Tasks" asp-action="Create"
                            class="btn btn-primary">
                             Create Your First Task
                         </a>
-                    }
-                </div>
-            }
+                    </div>
+                }
+
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <h1 class="display-4 fw-bold">Welcome to TaskFlow</h1>
+            <p class="lead text-secondary">
+                Organize your work and keep track of your progress.
+            </p>
+
+            <a asp-controller="Account" asp-action="Register"
+               class="btn btn-primary btn-lg me-2">
+                Get Started
+            </a>
+
+            <a asp-controller="Account" asp-action="Login"
+               class="btn btn-outline-primary btn-lg">
+                Login
+            </a>
+        </div>
+    }
+
 </div>

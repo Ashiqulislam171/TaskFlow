@@ -6,33 +6,78 @@
 }
 
 <div class="container py-4">
+
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
         <div>
             <h1 class="fw-bold">My Tasks</h1>
-            <p class="text-secondary mb-0">
-                Manage all your tasks in one place.
-            </p>
+            <p class="text-secondary mb-0">Manage all your tasks in one place.</p>
         </div>
 
         <div class="d-flex gap-2">
-            <a asp-action="Create" class="btn btn-primary">
-                + Create Task
-            </a>
-
-            <a asp-controller="Home" asp-action="Index"
-               class="btn btn-outline-secondary">
-                Dashboard
-            </a>
+            <a asp-action="Create" class="btn btn-primary">+ Create Task</a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Dashboard</a>
         </div>
     </div>
 
+    <!-- Search and Filter -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form action="/Tasks" method="get">
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Search by Title</label>
+                        <input type="text"
+                               name="searchTerm"
+                               value="@ViewBag.SearchTerm"
+                               class="form-control"
+                               placeholder="Enter task title..." />
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="Pending" selected="@(ViewBag.SelectedStatus == "Pending")">Pending</option>
+                            <option value="In Progress" selected="@(ViewBag.SelectedStatus == "In Progress")">In Progress</option>
+                            <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Priority</label>
+                        <select name="priority" class="form-select">
+                            <option value="">All Priorities</option>
+                            <option value="Low" selected="@(ViewBag.SelectedPriority == "Low")">Low</option>
+                            <option value="Medium" selected="@(ViewBag.SelectedPriority == "Medium")">Medium</option>
+                            <option value="High" selected="@(ViewBag.SelectedPriority == "High")">High</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                        <a href="/Tasks" class="btn btn-outline-secondary">Clear</a>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Task List -->
     <div class="card border-0 shadow-sm">
         <div class="card-body">
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">Task List</h5>
+                <span class="badge bg-primary">@Model.Count() Tasks</span>
+            </div>
+
             @if (Model.Any())
             {
                 <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
+                    <table class="table align-middle table-hover">
+                        <thead class="table-light">
                             <tr>
                                 <th>Task</th>
                                 <th>Priority</th>
@@ -41,6 +86,7 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             @foreach (var task in Model)
                             {
@@ -49,9 +95,7 @@
                                         <strong>@task.Title</strong>
                                         @if (!string.IsNullOrWhiteSpace(task.Description))
                                         {
-                                            <div class="small text-secondary">
-                                                @task.Description
-                                            </div>
+                                            <div class="small text-secondary">@task.Description</div>
                                         }
                                     </td>
 
@@ -85,23 +129,15 @@
                                         }
                                     </td>
 
-                                    <td>
-                                        @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
-                                    </td>
+                                    <td>@(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")</td>
 
                                     <td>
                                         <div class="d-flex gap-2">
-                                            <a asp-action="Edit"
-                                               asp-route-id="@task.Id"
-                                               class="btn btn-sm btn-outline-primary">
-                                                Edit
-                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@task.Id"
+                                               class="btn btn-sm btn-outline-primary">Edit</a>
 
-                                            <a asp-action="Delete"
-                                               asp-route-id="@task.Id"
-                                               class="btn btn-sm btn-outline-danger">
-                                                Delete
-                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@task.Id"
+                                               class="btn btn-sm btn-outline-danger">Delete</a>
                                         </div>
                                     </td>
                                 </tr>
@@ -113,16 +149,13 @@
             else
             {
                 <div class="text-center py-5">
-                    <h4>No tasks yet</h4>
-                    <p class="text-secondary">
-                        Create your first task to get started.
-                    </p>
-
-                    <a asp-action="Create" class="btn btn-primary">
-                        Create Your First Task
-                    </a>
+                    <h4>No tasks found</h4>
+                    <p class="text-secondary">Try changing your search or filters.</p>
+                    <a asp-action="Create" class="btn btn-primary">Create Task</a>
                 </div>
             }
+
         </div>
     </div>
+
 </div>

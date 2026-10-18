@@ -22,14 +22,40 @@ public class TasksController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(
+        string? searchTerm,
+        string? status,
+        string? priority)
     {
         var userId = _userManager.GetUserId(User);
 
-        var tasks = await _context.Tasks
-            .Where(t => t.UserId == userId)
+        var query = _context.Tasks
+            .AsNoTracking()
+            .Where(t => t.UserId == userId);
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            query = query.Where(t =>
+                t.Title.Contains(searchTerm));
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(t => t.Status == status);
+        }
+
+        if (!string.IsNullOrWhiteSpace(priority))
+        {
+            query = query.Where(t => t.Priority == priority);
+        }
+
+        var tasks = await query
             .OrderByDescending(t => t.CreatedAt)
             .ToListAsync();
+
+        ViewBag.SearchTerm = searchTerm;
+        ViewBag.SelectedStatus = status;
+        ViewBag.SelectedPriority = priority;
 
         return View(tasks);
     }
@@ -66,7 +92,8 @@ public class TasksController : Controller
         var userId = _userManager.GetUserId(User);
 
         var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            .FirstOrDefaultAsync(t =>
+                t.Id == id && t.UserId == userId);
 
         if (task == null)
         {
@@ -96,7 +123,8 @@ public class TasksController : Controller
         var userId = _userManager.GetUserId(User);
 
         var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            .FirstOrDefaultAsync(t =>
+                t.Id == id && t.UserId == userId);
 
         if (task == null)
         {
@@ -120,7 +148,8 @@ public class TasksController : Controller
         var userId = _userManager.GetUserId(User);
 
         var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            .FirstOrDefaultAsync(t =>
+                t.Id == id && t.UserId == userId);
 
         if (task == null)
         {
@@ -137,7 +166,8 @@ public class TasksController : Controller
         var userId = _userManager.GetUserId(User);
 
         var task = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+            .FirstOrDefaultAsync(t =>
+                t.Id == id && t.UserId == userId);
 
         if (task == null)
         {
