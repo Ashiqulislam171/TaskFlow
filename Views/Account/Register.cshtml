@@ -26,40 +26,63 @@
 
                         <div class="mb-3">
                             <label asp-for="FullName"
-                                   class="form-label">Full Name</label>
+                                   class="form-label">
+                                Full Name
+                            </label>
+
                             <input asp-for="FullName"
                                    class="form-control"
-                                   placeholder="Enter your full name" />
+                                   placeholder="Enter your full name"
+                                   autocomplete="name" />
+
                             <span asp-validation-for="FullName"
                                   class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Email"
-                                   class="form-label">Email Address</label>
+                                   class="form-label">
+                                Email Address
+                            </label>
+
                             <input asp-for="Email"
+                                   type="email"
                                    class="form-control"
-                                   placeholder="name@example.com" />
+                                   placeholder="name@example.com"
+                                   autocomplete="email" />
+
                             <span asp-validation-for="Email"
                                   class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Password"
-                                   class="form-label">Password</label>
+                                   class="form-label">
+                                Password
+                            </label>
+
                             <input asp-for="Password"
+                                   type="password"
                                    class="form-control"
-                                   placeholder="At least 8 characters" />
+                                   placeholder="At least 8 characters"
+                                   autocomplete="new-password" />
+
                             <span asp-validation-for="Password"
                                   class="text-danger"></span>
                         </div>
 
                         <div class="mb-4">
                             <label asp-for="ConfirmPassword"
-                                   class="form-label">Confirm Password</label>
+                                   class="form-label">
+                                Confirm Password
+                            </label>
+
                             <input asp-for="ConfirmPassword"
+                                   type="password"
                                    class="form-control"
-                                   placeholder="Enter password again" />
+                                   placeholder="Enter password again"
+                                   autocomplete="new-password" />
+
                             <span asp-validation-for="ConfirmPassword"
                                   class="text-danger"></span>
                         </div>
@@ -73,7 +96,9 @@
                     <p class="text-center text-secondary mt-4 mb-0">
                         Already have an account?
                         <a asp-controller="Account"
-                           asp-action="Login">Login</a>
+                           asp-action="Login">
+                            Login
+                        </a>
                     </p>
                 </div>
             </div>

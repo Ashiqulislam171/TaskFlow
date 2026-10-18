@@ -26,20 +26,32 @@
 
                         <div class="mb-3">
                             <label asp-for="Email"
-                                   class="form-label">Email Address</label>
+                                   class="form-label">
+                                Email Address
+                            </label>
+
                             <input asp-for="Email"
+                                   type="email"
                                    class="form-control"
-                                   placeholder="name@example.com" />
+                                   placeholder="name@example.com"
+                                   autocomplete="email" />
+
                             <span asp-validation-for="Email"
                                   class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Password"
-                                   class="form-label">Password</label>
+                                   class="form-label">
+                                Password
+                            </label>
+
                             <input asp-for="Password"
+                                   type="password"
                                    class="form-control"
-                                   placeholder="Enter your password" />
+                                   placeholder="Enter your password"
+                                   autocomplete="current-password" />
+
                             <span asp-validation-for="Password"
                                   class="text-danger"></span>
                         </div>
@@ -47,6 +59,7 @@
                         <div class="form-check mb-4">
                             <input asp-for="RememberMe"
                                    class="form-check-input" />
+
                             <label asp-for="RememberMe"
                                    class="form-check-label">
                                 Remember Me
@@ -62,7 +75,9 @@
                     <p class="text-center text-secondary mt-4 mb-0">
                         Don't have an account?
                         <a asp-controller="Account"
-                           asp-action="Register">Register</a>
+                           asp-action="Register">
+                            Register
+                        </a>
                     </p>
                 </div>
             </div>

@@ -3,6 +3,7 @@
 
 @{
     ViewData["Title"] = "My Tasks";
+    var tasks = Model.ToList();
 }
 
 <div class="container py-4">
@@ -15,11 +16,13 @@
             </p>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex flex-wrap gap-2">
             <a asp-action="Create" class="btn btn-primary">
                 + Create Task
             </a>
-            <a asp-controller="Home" asp-action="Index"
+
+            <a asp-controller="Home"
+               asp-action="Index"
                class="btn btn-outline-secondary">
                 Dashboard
             </a>
@@ -28,10 +31,14 @@
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show"
+             role="alert">
             @TempData["SuccessMessage"]
-            <button type="button" class="btn-close"
-                    data-bs-dismiss="alert" aria-label="Close"></button>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"></button>
         </div>
     }
 
@@ -41,39 +48,73 @@
             <form asp-action="Index" method="get">
                 <div class="row g-3">
 
-                    <div class="col-md-4">
-                        <label class="form-label">Search by Title</label>
+                    <div class="col-12 col-md-4">
+                        <label for="searchTerm" class="form-label">
+                            Search by Title
+                        </label>
+
                         <input type="text"
+                               id="searchTerm"
                                name="searchTerm"
                                value="@ViewBag.SearchTerm"
                                class="form-control"
                                placeholder="Enter task title..." />
                     </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label">Status Filter</label>
-                        <select name="status" class="form-select">
+                    <div class="col-12 col-md-3">
+                        <label for="status" class="form-label">
+                            Status Filter
+                        </label>
+
+                        <select id="status"
+                                name="status"
+                                class="form-select">
                             <option value="">All Statuses</option>
-                            <option value="Pending" selected="@(ViewBag.SelectedStatus == "Pending")">Pending</option>
-                            <option value="In Progress" selected="@(ViewBag.SelectedStatus == "In Progress")">In Progress</option>
-                            <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
+                            <option value="Pending"
+                                    selected="@(ViewBag.SelectedStatus == "Pending")">
+                                Pending
+                            </option>
+                            <option value="In Progress"
+                                    selected="@(ViewBag.SelectedStatus == "In Progress")">
+                                In Progress
+                            </option>
+                            <option value="Completed"
+                                    selected="@(ViewBag.SelectedStatus == "Completed")">
+                                Completed
+                            </option>
                         </select>
                     </div>
 
-                    <div class="col-md-3">
-                        <label class="form-label">Priority Filter</label>
-                        <select name="priority" class="form-select">
+                    <div class="col-12 col-md-3">
+                        <label for="priority" class="form-label">
+                            Priority Filter
+                        </label>
+
+                        <select id="priority"
+                                name="priority"
+                                class="form-select">
                             <option value="">All Priorities</option>
-                            <option value="Low" selected="@(ViewBag.SelectedPriority == "Low")">Low</option>
-                            <option value="Medium" selected="@(ViewBag.SelectedPriority == "Medium")">Medium</option>
-                            <option value="High" selected="@(ViewBag.SelectedPriority == "High")">High</option>
+                            <option value="Low"
+                                    selected="@(ViewBag.SelectedPriority == "Low")">
+                                Low
+                            </option>
+                            <option value="Medium"
+                                    selected="@(ViewBag.SelectedPriority == "Medium")">
+                                Medium
+                            </option>
+                            <option value="High"
+                                    selected="@(ViewBag.SelectedPriority == "High")">
+                                High
+                            </option>
                         </select>
                     </div>
 
-                    <div class="col-md-2 d-flex align-items-end gap-2">
-                        <button type="submit" class="btn btn-primary">
+                    <div class="col-12 col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit"
+                                class="btn btn-primary">
                             Search
                         </button>
+
                         <a asp-action="Index"
                            class="btn btn-outline-secondary">
                             Clear
@@ -89,34 +130,38 @@
     <div class="card border-0 shadow-sm">
         <div class="card-body">
 
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
                 <h5 class="fw-bold mb-0">Task List</h5>
-                <span class="badge bg-primary">@Model.Count() Tasks</span>
+
+                <span class="badge bg-primary">
+                    @tasks.Count Tasks
+                </span>
             </div>
 
-            @if (Model.Any())
+            @if (tasks.Count > 0)
             {
                 <div class="table-responsive">
                     <table class="table align-middle table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>Task</th>
-                                <th>Priority</th>
-                                <th>Status</th>
-                                <th>Due Date</th>
-                                <th>Actions</th>
+                                <th scope="col">Task</th>
+                                <th scope="col">Priority</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Due Date</th>
+                                <th scope="col">Actions</th>
                             </tr>
                         </thead>
 
                         <tbody>
-                            @foreach (var task in Model)
+                            @foreach (var task in tasks)
                             {
                                 <tr>
-                                    <td>
+                                    <td class="text-break">
                                         <strong>@task.Title</strong>
+
                                         @if (!string.IsNullOrWhiteSpace(task.Description))
                                         {
-                                            <div class="small text-secondary">
+                                            <div class="small text-secondary mt-1">
                                                 @task.Description
                                             </div>
                                         }
@@ -125,50 +170,72 @@
                                     <td>
                                         @if (task.Priority == "High")
                                         {
-                                            <span class="badge bg-danger">High</span>
+                                            <span class="badge bg-danger">
+                                                High
+                                            </span>
                                         }
                                         else if (task.Priority == "Medium")
                                         {
-                                            <span class="badge bg-warning text-dark">Medium</span>
+                                            <span class="badge bg-warning text-dark">
+                                                Medium
+                                            </span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-success">@task.Priority</span>
+                                            <span class="badge bg-success">
+                                                @task.Priority
+                                            </span>
                                         }
                                     </td>
 
                                     <td>
                                         @if (task.Status == "Completed")
                                         {
-                                            <span class="badge bg-success">Completed</span>
+                                            <span class="badge bg-success">
+                                                Completed
+                                            </span>
                                         }
                                         else if (task.Status == "In Progress")
                                         {
-                                            <span class="badge bg-primary">In Progress</span>
+                                            <span class="badge bg-primary">
+                                                In Progress
+                                            </span>
                                         }
                                         else
                                         {
-                                            <span class="badge bg-secondary">@task.Status</span>
+                                            <span class="badge bg-secondary">
+                                                @task.Status
+                                            </span>
                                         }
 
                                         <form asp-action="UpdateStatus"
                                               method="post"
                                               class="mt-2">
+
                                             @Html.AntiForgeryToken()
-                                            <input type="hidden" name="id"
+
+                                            <input type="hidden"
+                                                   name="id"
                                                    value="@task.Id" />
 
-                                            <select name="status"
-                                                    class="form-select form-select-sm mb-2"
-                                                    aria-label="Change task status">
+                                            <label class="visually-hidden"
+                                                   for="status-@task.Id">
+                                                Change status for @task.Title
+                                            </label>
+
+                                            <select id="status-@task.Id"
+                                                    name="status"
+                                                    class="form-select form-select-sm mb-2">
                                                 <option value="Pending"
                                                         selected="@(task.Status == "Pending")">
                                                     Pending
                                                 </option>
+
                                                 <option value="In Progress"
                                                         selected="@(task.Status == "In Progress")">
                                                     In Progress
                                                 </option>
+
                                                 <option value="Completed"
                                                         selected="@(task.Status == "Completed")">
                                                     Completed
@@ -187,8 +254,11 @@
                                              task.DueDate.Value.Date < DateTime.Today &&
                                              task.Status != "Completed")
                                         {
-                                            <span class="badge bg-danger">Overdue</span>
-                                            <div class="small text-danger">
+                                            <span class="badge bg-danger">
+                                                Overdue
+                                            </span>
+
+                                            <div class="small text-danger mt-1">
                                                 @task.DueDate.Value.ToString("dd MMM yyyy")
                                             </div>
                                         }
@@ -223,10 +293,14 @@
             {
                 <div class="text-center py-5">
                     <h4>No tasks found</h4>
+
                     <p class="text-secondary">
-                        Try changing your search or filters.
+                        Try changing your search or filters,
+                        or create a new task.
                     </p>
-                    <a asp-action="Create" class="btn btn-primary">
+
+                    <a asp-action="Create"
+                       class="btn btn-primary">
                         Create Task
                     </a>
                 </div>
