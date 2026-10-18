@@ -14,6 +14,20 @@ public class TasksController : Controller
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
 
+    private static readonly string[] AllowedStatuses =
+    {
+        "Pending",
+        "In Progress",
+        "Completed"
+    };
+
+    private static readonly string[] AllowedPriorities =
+    {
+        "Low",
+        "Medium",
+        "High"
+    };
+
     public TasksController(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager)
@@ -35,18 +49,28 @@ public class TasksController : Controller
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
+            searchTerm = searchTerm.Trim();
+
             query = query.Where(t =>
                 t.Title.Contains(searchTerm));
         }
 
-        if (!string.IsNullOrWhiteSpace(status))
+        if (AllowedStatuses.Contains(status))
         {
             query = query.Where(t => t.Status == status);
         }
+        else
+        {
+            status = null;
+        }
 
-        if (!string.IsNullOrWhiteSpace(priority))
+        if (AllowedPriorities.Contains(priority))
         {
             query = query.Where(t => t.Priority == priority);
+        }
+        else
+        {
+            priority = null;
         }
 
         var tasks = await query
@@ -64,16 +88,9 @@ public class TasksController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateStatus(
         int id,
-        string status)
+        string? status)
     {
-        var allowedStatuses = new[]
-        {
-            "Pending",
-            "In Progress",
-            "Completed"
-        };
-
-        if (!allowedStatuses.Contains(status))
+        if (!AllowedStatuses.Contains(status))
         {
             return BadRequest("Invalid task status.");
         }
@@ -89,7 +106,7 @@ public class TasksController : Controller
             return NotFound();
         }
 
-        task.Status = status;
+        task.Status = status!;
 
         await _context.SaveChangesAsync();
 
@@ -111,6 +128,20 @@ public class TasksController : Controller
         [Bind("Title,Description,Status,Priority,DueDate")]
         TaskItem task)
     {
+        if (!AllowedStatuses.Contains(task.Status))
+        {
+            ModelState.AddModelError(
+                nameof(task.Status),
+                "Please select a valid status.");
+        }
+
+        if (!AllowedPriorities.Contains(task.Priority))
+        {
+            ModelState.AddModelError(
+                nameof(task.Priority),
+                "Please select a valid priority.");
+        }
+
         if (!ModelState.IsValid)
         {
             return View(task);
@@ -155,6 +186,20 @@ public class TasksController : Controller
         if (id != updatedTask.Id)
         {
             return BadRequest();
+        }
+
+        if (!AllowedStatuses.Contains(updatedTask.Status))
+        {
+            ModelState.AddModelError(
+                nameof(updatedTask.Status),
+                "Please select a valid status.");
+        }
+
+        if (!AllowedPriorities.Contains(updatedTask.Priority))
+        {
+            ModelState.AddModelError(
+                nameof(updatedTask.Priority),
+                "Please select a valid priority.");
         }
 
         if (!ModelState.IsValid)
