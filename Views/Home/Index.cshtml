@@ -1,4 +1,6 @@
 ﻿
+@model TaskFlow.ViewModels.DashboardViewModel
+
 @{
     ViewData["Title"] = "Dashboard";
 }
@@ -25,12 +27,20 @@
         </div>
     </div>
 
+    @if (User.Identity?.IsAuthenticated != true)
+    {
+        <div class="alert alert-info">
+            Please <a asp-controller="Account" asp-action="Login">log in</a>
+            to see your personal task statistics.
+        </div>
+    }
+
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-lg-3">
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <p class="text-secondary mb-2">Total Tasks</p>
-                    <h2 class="fw-bold mb-0">12</h2>
+                    <h2 class="fw-bold mb-0">@Model.TotalTasks</h2>
                     <small class="text-secondary">All your tasks</small>
                 </div>
             </div>
@@ -40,7 +50,9 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <p class="text-secondary mb-2">Completed</p>
-                    <h2 class="fw-bold text-success mb-0">7</h2>
+                    <h2 class="fw-bold text-success mb-0">
+                        @Model.CompletedTasks
+                    </h2>
                     <small class="text-secondary">Tasks finished</small>
                 </div>
             </div>
@@ -50,7 +62,9 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <p class="text-secondary mb-2">In Progress</p>
-                    <h2 class="fw-bold text-primary mb-0">3</h2>
+                    <h2 class="fw-bold text-primary mb-0">
+                        @Model.InProgressTasks
+                    </h2>
                     <small class="text-secondary">Currently active</small>
                 </div>
             </div>
@@ -60,7 +74,9 @@
             <div class="card border-0 shadow-sm h-100">
                 <div class="card-body p-4">
                     <p class="text-secondary mb-2">Pending</p>
-                    <h2 class="fw-bold text-warning mb-0">2</h2>
+                    <h2 class="fw-bold text-warning mb-0">
+                        @Model.PendingTasks
+                    </h2>
                     <small class="text-secondary">Waiting to start</small>
                 </div>
             </div>
@@ -83,60 +99,88 @@
                 </a>
             </div>
 
-            <div class="table-responsive">
-                <table class="table align-middle">
-                    <thead>
-                        <tr>
-                            <th>Task</th>
-                            <th>Priority</th>
-                            <th>Status</th>
-                            <th>Due Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <strong>Complete project report</strong>
-                                <div class="text-secondary small">
-                                    Prepare the final documentation
-                                </div>
-                            </td>
-                            <td><span class="badge bg-danger">High</span></td>
-                            <td><span class="badge bg-primary">In Progress</span></td>
-                            <td>Oct 20, 2026</td>
-                        </tr>
+            @if (Model.RecentTasks.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in Model.RecentTasks)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong>@task.Title</strong>
+                                        @if (!string.IsNullOrWhiteSpace(task.Description))
+                                        {
+                                            <div class="text-secondary small">
+                                                @task.Description
+                                            </div>
+                                        }
+                                    </td>
 
-                        <tr>
-                            <td>
-                                <strong>Review Computer Vision notes</strong>
-                                <div class="text-secondary small">
-                                    Prepare study materials
-                                </div>
-                            </td>
-                            <td><span class="badge bg-warning text-dark">Medium</span></td>
-                            <td><span class="badge bg-secondary">Pending</span></td>
-                            <td>Oct 22, 2026</td>
-                        </tr>
+                                    <td>
+                                        @if (task.Priority == "High")
+                                        {
+                                            <span class="badge bg-danger">High</span>
+                                        }
+                                        else if (task.Priority == "Medium")
+                                        {
+                                            <span class="badge bg-warning text-dark">Medium</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">@task.Priority</span>
+                                        }
+                                    </td>
 
-                        <tr>
-                            <td>
-                                <strong>Update GitHub README</strong>
-                                <div class="text-secondary small">
-                                    Document project setup
-                                </div>
-                            </td>
-                            <td><span class="badge bg-success">Low</span></td>
-                            <td><span class="badge bg-success">Completed</span></td>
-                            <td>Oct 16, 2026</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                                    <td>
+                                        @if (task.Status == "Completed")
+                                        {
+                                            <span class="badge bg-success">Completed</span>
+                                        }
+                                        else if (task.Status == "In Progress")
+                                        {
+                                            <span class="badge bg-primary">In Progress</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@task.Status</span>
+                                        }
+                                    </td>
 
-            <p class="small text-secondary mb-0 mt-3">
-                Sample tasks are displayed here temporarily.
-                Real database integration will be added next.
-            </p>
+                                    <td>
+                                        @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <h5>No tasks to display yet</h5>
+                    <p class="text-secondary">
+                        Create your first task to see it here.
+                    </p>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a asp-controller="Tasks" asp-action="Create"
+                           class="btn btn-primary">
+                            Create Your First Task
+                        </a>
+                    }
+                </div>
+            }
         </div>
     </div>
 </div>

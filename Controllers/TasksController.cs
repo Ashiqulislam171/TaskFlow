@@ -42,7 +42,9 @@ public class TasksController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(TaskItem task)
+    public async Task<IActionResult> Create(
+        [Bind("Title,Description,Status,Priority,DueDate")]
+        TaskItem task)
     {
         if (!ModelState.IsValid)
         {
@@ -53,6 +55,96 @@ public class TasksController : Controller
         task.CreatedAt = DateTime.UtcNow;
 
         _context.Tasks.Add(task);
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var userId = _userManager.GetUserId(User);
+
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        return View(task);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(
+        int id,
+        [Bind("Id,Title,Description,Status,Priority,DueDate")]
+        TaskItem updatedTask)
+    {
+        if (id != updatedTask.Id)
+        {
+            return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return View(updatedTask);
+        }
+
+        var userId = _userManager.GetUserId(User);
+
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        task.Title = updatedTask.Title;
+        task.Description = updatedTask.Description;
+        task.Status = updatedTask.Status;
+        task.Priority = updatedTask.Priority;
+        task.DueDate = updatedTask.DueDate;
+
+        await _context.SaveChangesAsync();
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var userId = _userManager.GetUserId(User);
+
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        return View(task);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteConfirmed(int id)
+    {
+        var userId = _userManager.GetUserId(User);
+
+        var task = await _context.Tasks
+            .FirstOrDefaultAsync(t => t.Id == id && t.UserId == userId);
+
+        if (task == null)
+        {
+            return NotFound();
+        }
+
+        _context.Tasks.Remove(task);
         await _context.SaveChangesAsync();
 
         return RedirectToAction(nameof(Index));
