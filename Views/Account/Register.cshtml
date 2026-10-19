@@ -1,107 +1,250 @@
-
+```cshtml
 @model TaskFlow.ViewModels.RegisterViewModel
 
 @{
     ViewData["Title"] = "Create Account";
 }
 
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-5">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4 p-md-5">
-                    <div class="text-center mb-4">
-                        <h2 class="fw-bold">Create Account</h2>
-                        <p class="text-secondary">
-                            Join TaskFlow and organize your work.
-                        </p>
-                    </div>
+<style>
+    .auth-page {
+        min-height: 82vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 16px;
+        background:
+            radial-gradient(ellipse at top left, rgba(124, 58, 237, .16), transparent 45%),
+            radial-gradient(ellipse at bottom right, rgba(59, 130, 246, .12), transparent 45%);
+        border-radius: 24px;
+    }
 
-                    <form asp-controller="Account"
-                          asp-action="Register"
-                          method="post">
+    .auth-card {
+        width: 100%;
+        max-width: 490px;
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, .22);
+        border-radius: 24px;
+        background: var(--bs-body-bg, #fff);
+        box-shadow: 0 24px 70px rgba(15, 23, 42, .12);
+    }
 
-                        <div asp-validation-summary="ModelOnly"
-                             class="text-danger mb-3"></div>
+    .auth-banner {
+        padding: 30px 30px 25px;
+        color: #fff;
+        background: linear-gradient(135deg, #111827, #312e81 65%, #6d28d9);
+        position: relative;
+        overflow: hidden;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="FullName"
-                                   class="form-label">
-                                Full Name
-                            </label>
+    .auth-banner::after {
+        content: "";
+        position: absolute;
+        width: 180px;
+        height: 180px;
+        border: 1px solid rgba(255,255,255,.16);
+        border-radius: 50%;
+        right: -65px;
+        top: -85px;
+        box-shadow: 0 0 0 24px rgba(255,255,255,.035),
+                    0 0 0 48px rgba(255,255,255,.025);
+    }
 
-                            <input asp-for="FullName"
-                                   class="form-control"
-                                   placeholder="Enter your full name"
-                                   autocomplete="name" />
+    .auth-logo {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        border-radius: 15px;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.2);
+        font-size: 23px;
+        margin-bottom: 15px;
+    }
 
-                            <span asp-validation-for="FullName"
-                                  class="text-danger"></span>
-                        </div>
+    .auth-banner h1 {
+        font-size: clamp(26px, 5vw, 32px);
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 8px;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="Email"
-                                   class="form-label">
-                                Email Address
-                            </label>
+    .auth-banner p {
+        color: #ddd6fe;
+        margin-bottom: 0;
+        line-height: 1.6;
+    }
 
-                            <input asp-for="Email"
-                                   type="email"
-                                   class="form-control"
-                                   placeholder="name@example.com"
-                                   autocomplete="email" />
+    .auth-body {
+        padding: 27px 30px 30px;
+    }
 
-                            <span asp-validation-for="Email"
-                                  class="text-danger"></span>
-                        </div>
+    .auth-label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 7px;
+    }
 
-                        <div class="mb-3">
-                            <label asp-for="Password"
-                                   class="form-label">
-                                Password
-                            </label>
+    .auth-input {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid #dbe2ea;
+        border-radius: 11px;
+        padding: 11px 13px;
+        background: var(--bs-body-bg, #fff);
+        color: var(--bs-body-color, #111827);
+        transition: border-color .2s, box-shadow .2s;
+    }
 
-                            <input asp-for="Password"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="At least 8 characters"
-                                   autocomplete="new-password" />
+    .auth-input:focus {
+        outline: none;
+        border-color: #7c3aed;
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, .12);
+    }
 
-                            <span asp-validation-for="Password"
-                                  class="text-danger"></span>
-                        </div>
+    .auth-field {
+        margin-bottom: 17px;
+    }
 
-                        <div class="mb-4">
-                            <label asp-for="ConfirmPassword"
-                                   class="form-label">
-                                Confirm Password
-                            </label>
+    .auth-submit {
+        width: 100%;
+        min-height: 49px;
+        border: 0;
+        border-radius: 12px;
+        color: #fff;
+        font-weight: 750;
+        background: linear-gradient(100deg, #4f46e5, #7c3aed);
+        box-shadow: 0 8px 20px rgba(99, 102, 241, .23);
+        transition: transform .2s, box-shadow .2s;
+    }
 
-                            <input asp-for="ConfirmPassword"
-                                   type="password"
-                                   class="form-control"
-                                   placeholder="Enter password again"
-                                   autocomplete="new-password" />
+    .auth-submit:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 12px 26px rgba(99, 102, 241, .32);
+    }
 
-                            <span asp-validation-for="ConfirmPassword"
-                                  class="text-danger"></span>
-                        </div>
+    .auth-link {
+        color: #6d28d9;
+        font-weight: 750;
+        text-decoration: none;
+    }
 
-                        <button type="submit"
-                                class="btn btn-primary w-100 py-2">
-                            Create Account
-                        </button>
-                    </form>
+    .auth-link:hover {
+        color: #4f46e5;
+        text-decoration: underline;
+    }
 
-                    <p class="text-center text-secondary mt-4 mb-0">
-                        Already have an account?
-                        <a asp-controller="Account"
-                           asp-action="Login">
-                            Login
-                        </a>
-                    </p>
+    .auth-footer {
+        text-align: center;
+        font-size: 14px;
+        margin-top: 22px;
+        margin-bottom: 0;
+    }
+
+    .auth-validation {
+        font-size: 13px;
+    }
+
+    @@media (max-width: 480px) {
+        .auth-page {
+            padding: 24px 4px;
+            min-height: auto;
+        }
+
+        .auth-card {
+            border-radius: 19px;
+        }
+
+        .auth-banner {
+            padding: 25px 23px 22px;
+        }
+
+        .auth-body {
+            padding: 23px 22px;
+        }
+    }
+</style>
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-banner">
+            <div class="auth-logo">✦</div>
+            <h1>Create your account.</h1>
+            <p>Start organizing your work with a clearer, more productive workflow.</p>
+        </div>
+
+        <div class="auth-body">
+            <form asp-controller="Account"
+                  asp-action="Register"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="text-danger auth-validation mb-3"></div>
+
+                <div class="auth-field">
+                    <label asp-for="FullName" class="auth-label">
+                        Full name
+                    </label>
+                    <input asp-for="FullName"
+                           class="auth-input"
+                           placeholder="Enter your full name"
+                           autocomplete="name" />
+                    <span asp-validation-for="FullName"
+                          class="text-danger auth-validation"></span>
                 </div>
-            </div>
+
+                <div class="auth-field">
+                    <label asp-for="Email" class="auth-label">
+                        Email address
+                    </label>
+                    <input asp-for="Email"
+                           type="email"
+                           class="auth-input"
+                           placeholder="name@example.com"
+                           autocomplete="email" />
+                    <span asp-validation-for="Email"
+                          class="text-danger auth-validation"></span>
+                </div>
+
+                <div class="auth-field">
+                    <label asp-for="Password" class="auth-label">
+                        Password
+                    </label>
+                    <input asp-for="Password"
+                           type="password"
+                           class="auth-input"
+                           placeholder="At least 8 characters"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="Password"
+                          class="text-danger auth-validation"></span>
+                </div>
+
+                <div class="auth-field mb-4">
+                    <label asp-for="ConfirmPassword" class="auth-label">
+                        Confirm password
+                    </label>
+                    <input asp-for="ConfirmPassword"
+                           type="password"
+                           class="auth-input"
+                           placeholder="Enter password again"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="ConfirmPassword"
+                          class="text-danger auth-validation"></span>
+                </div>
+
+                <button type="submit" class="auth-submit">
+                    Create my account →
+                </button>
+            </form>
+
+            <p class="auth-footer text-body-secondary">
+                Already have an account?
+                <a asp-controller="Account"
+                   asp-action="Login"
+                   class="auth-link">Sign in</a>
+            </p>
         </div>
     </div>
 </div>
@@ -109,3 +252,4 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+```
