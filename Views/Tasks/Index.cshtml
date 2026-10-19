@@ -250,9 +250,9 @@
                                     </td>
 
                                     <td>
-                                        @if (task.DueDate.HasValue &&
-                                             task.DueDate.Value.Date < DateTime.Today &&
-                                             task.Status != "Completed")
+                                       @if (task.DueDate.HasValue &&
+     task.DueDate.Value < DateOnly.FromDateTime(DateTime.Today) &&
+     task.Status != "Completed")
                                         {
                                             <span class="badge bg-danger">
                                                 Overdue
