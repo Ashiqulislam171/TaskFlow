@@ -4,37 +4,495 @@
 @{
     ViewData["Title"] = "My Tasks";
     var tasks = Model.ToList();
+    var pendingCount = tasks.Count(t => t.Status == "Pending");
+    var progressCount = tasks.Count(t => t.Status == "In Progress");
+    var completedCount = tasks.Count(t => t.Status == "Completed");
 }
 
-<div class="container py-4">
+<style>
+    .tf-page {
+        --tf-ink: #172033;
+        --tf-muted: #7b8498;
+        --tf-line: #e9edf5;
+        --tf-primary: #635bff;
+        color: var(--tf-ink);
+        padding: 28px 0 50px;
+    }
 
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-        <div>
-            <h1 class="fw-bold">My Tasks</h1>
-            <p class="text-secondary mb-0">
-                Manage all your tasks in one place.
-            </p>
+    .tf-page * {
+        box-sizing: border-box;
+    }
+
+    .tf-page .tf-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 32px;
+        margin-bottom: 26px;
+        color: white;
+        border-radius: 26px;
+        background: linear-gradient(120deg, #171d3b 0%, #34377b 55%, #665bff 100%);
+        box-shadow: 0 18px 45px rgba(48, 47, 115, .18);
+    }
+
+    .tf-page .tf-hero::after {
+        content: "";
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        right: -55px;
+        top: -105px;
+        border: 35px solid rgba(255,255,255,.08);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .tf-page .tf-eyebrow {
+        font-size: .75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #c8c8ff;
+    }
+
+    .tf-page .tf-hero h1 {
+        margin: 10px 0;
+        font-size: clamp(1.8rem, 4vw, 2.65rem);
+        font-weight: 800;
+        letter-spacing: -1.2px;
+    }
+
+    .tf-page .tf-hero p {
+        color: #e1e3ff;
+        margin: 0;
+        max-width: 480px;
+        line-height: 1.7;
+    }
+
+    .tf-page .tf-btn-light {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 12px 17px;
+        border: 1px solid rgba(255,255,255,.25);
+        border-radius: 12px;
+        color: #272451;
+        background: #fff;
+        font-weight: 700;
+        text-decoration: none;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .tf-page .tf-btn-light:hover {
+        color: #272451;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    }
+
+    .tf-page .tf-btn-glass {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 11px 16px;
+        border: 1px solid rgba(255,255,255,.28);
+        border-radius: 12px;
+        color: white;
+        background: rgba(255,255,255,.09);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .tf-page .tf-btn-glass:hover {
+        color: white;
+        background: rgba(255,255,255,.17);
+    }
+
+    .tf-page .tf-stat {
+        height: 100%;
+        padding: 21px;
+        background: #fff;
+        border: 1px solid var(--tf-line);
+        border-radius: 19px;
+        box-shadow: 0 5px 22px rgba(24, 39, 75, .035);
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .tf-page .tf-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 28px rgba(24, 39, 75, .08);
+    }
+
+    .tf-page .tf-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .tf-page .tf-stat-label {
+        color: var(--tf-muted);
+        font-size: .86rem;
+        font-weight: 650;
+    }
+
+    .tf-page .tf-stat-value {
+        margin-top: 14px;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .tf-page .tf-stat-note {
+        margin-top: 4px;
+        color: var(--tf-muted);
+        font-size: .78rem;
+    }
+
+    .tf-page .tf-stat-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 43px;
+        height: 43px;
+        border-radius: 14px;
+        font-size: 1.2rem;
+        font-weight: 800;
+    }
+
+    .tf-page .tf-purple { color: #635bff; background: #eeedff; }
+    .tf-page .tf-orange { color: #bd7410; background: #fff2dc; }
+    .tf-page .tf-blue { color: #2875db; background: #e7f1ff; }
+    .tf-page .tf-green { color: #16845a; background: #e3f8ee; }
+
+    .tf-page .tf-panel {
+        overflow: hidden;
+        border: 1px solid var(--tf-line);
+        border-radius: 21px;
+        background: #fff;
+        box-shadow: 0 7px 28px rgba(24, 39, 75, .04);
+    }
+
+    .tf-page .tf-panel-head {
+        padding: 23px 25px;
+        border-bottom: 1px solid var(--tf-line);
+    }
+
+    .tf-page .tf-heading {
+        margin: 0;
+        font-size: 1.08rem;
+        font-weight: 800;
+        letter-spacing: -.3px;
+    }
+
+    .tf-page .tf-subheading {
+        margin: 5px 0 0;
+        color: var(--tf-muted);
+        font-size: .84rem;
+    }
+
+    .tf-page .tf-count {
+        padding: 7px 11px;
+        border-radius: 9px;
+        color: #554cf0;
+        background: #efeeff;
+        font-size: .78rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .tf-page .tf-filter {
+        padding: 21px 25px;
+        border-bottom: 1px solid var(--tf-line);
+        background: #fcfcff;
+    }
+
+    .tf-page .form-label {
+        margin-bottom: 7px;
+        color: #454d61;
+        font-size: .8rem;
+        font-weight: 700;
+    }
+
+    .tf-page .form-control,
+    .tf-page .form-select {
+        min-height: 43px;
+        border-color: #e4e8f1;
+        border-radius: 11px;
+        color: #202940;
+        font-size: .88rem;
+        box-shadow: none;
+    }
+
+    .tf-page .form-control:focus,
+    .tf-page .form-select:focus {
+        border-color: #9d98ff;
+        box-shadow: 0 0 0 3px rgba(99,91,255,.11);
+    }
+
+    .tf-page .tf-search-btn {
+        min-height: 43px;
+        padding: 9px 17px;
+        border: 0;
+        border-radius: 11px;
+        background: linear-gradient(135deg, #635bff, #8278ff);
+        color: white;
+        font-weight: 750;
+    }
+
+    .tf-page .tf-search-btn:hover {
+        color: white;
+        background: #5148ed;
+    }
+
+    .tf-page .tf-clear-btn {
+        min-height: 43px;
+        padding: 9px 15px;
+        border: 1px solid #e1e5ee;
+        border-radius: 11px;
+        color: #50596d;
+        background: white;
+        font-weight: 650;
+        text-decoration: none;
+    }
+
+    .tf-page .tf-table-wrap {
+        overflow-x: auto;
+    }
+
+    .tf-page .tf-table {
+        min-width: 850px;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    .tf-page .tf-table thead th {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--tf-line);
+        background: #f8f9fd;
+        color: #778096;
+        font-size: .72rem;
+        font-weight: 800;
+        letter-spacing: .8px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .tf-page .tf-table tbody td {
+        padding: 20px;
+        border-bottom: 1px solid #f0f2f7;
+    }
+
+    .tf-page .tf-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .tf-page .tf-table tbody tr {
+        transition: background .15s;
+    }
+
+    .tf-page .tf-table tbody tr:hover {
+        background: #fbfaff;
+    }
+
+    .tf-page .tf-task-title {
+        display: block;
+        color: #202940;
+        font-size: .92rem;
+        font-weight: 750;
+        overflow-wrap: anywhere;
+    }
+
+    .tf-page .tf-task-desc {
+        max-width: 260px;
+        margin-top: 6px;
+        color: var(--tf-muted);
+        font-size: .8rem;
+        line-height: 1.6;
+        overflow-wrap: anywhere;
+    }
+
+    .tf-page .tf-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 10px;
+        border-radius: 8px;
+        font-size: .74rem;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .tf-page .tf-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    .tf-page .tf-status-pending { color: #a56a0a; background: #fff3d9; }
+    .tf-page .tf-status-progress { color: #2768c7; background: #e8f1ff; }
+    .tf-page .tf-status-completed { color: #13845a; background: #e1f7ec; }
+    .tf-page .tf-priority-high { color: #c33c4d; background: #ffeaed; }
+    .tf-page .tf-priority-medium { color: #a56a0a; background: #fff3d9; }
+    .tf-page .tf-priority-low { color: #16805a; background: #e1f7ec; }
+    .tf-page .tf-overdue { color: #c33c4d; background: #ffeaed; }
+
+    .tf-page .tf-date {
+        color: #3f485d;
+        font-size: .83rem;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .tf-page .tf-muted {
+        color: #929bad;
+        font-size: .82rem;
+    }
+
+    .tf-page .tf-mini-form {
+        min-width: 135px;
+        max-width: 165px;
+    }
+
+    .tf-page .tf-mini-form .form-select {
+        min-height: 35px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        font-size: .78rem;
+    }
+
+    .tf-page .tf-update-btn {
+        width: 100%;
+        margin-top: 7px;
+        padding: 7px 10px;
+        border: 1px solid #dcd9ff;
+        border-radius: 9px;
+        color: #5a51ef;
+        background: #f5f4ff;
+        font-size: .76rem;
+        font-weight: 750;
+    }
+
+    .tf-page .tf-update-btn:hover {
+        color: white;
+        background: #635bff;
+    }
+
+    .tf-page .tf-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 11px;
+        border: 1px solid #e3e7f0;
+        border-radius: 9px;
+        color: #46516a;
+        background: white;
+        font-size: .78rem;
+        font-weight: 750;
+        text-decoration: none;
+        transition: all .15s;
+    }
+
+    .tf-page .tf-action-edit:hover {
+        color: #554cf0;
+        border-color: #d8d4ff;
+        background: #f4f3ff;
+    }
+
+    .tf-page .tf-action-delete:hover {
+        color: #c33c4d;
+        border-color: #ffd4da;
+        background: #fff1f3;
+    }
+
+    .tf-page .tf-empty {
+        padding: 55px 20px;
+        text-align: center;
+    }
+
+    .tf-page .tf-empty-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 68px;
+        height: 68px;
+        margin-bottom: 18px;
+        border-radius: 22px;
+        color: #635bff;
+        background: #efeeff;
+        font-size: 1.8rem;
+        font-weight: 800;
+    }
+
+    .tf-page .tf-footer {
+        padding-top: 17px;
+        color: #929bad;
+        font-size: .77rem;
+        text-align: center;
+    }
+
+    @@media (max-width: 767.98px) {
+        .tf-page {
+            padding-top: 16px;
+        }
+
+        .tf-page .tf-hero {
+            padding: 24px 21px;
+            border-radius: 20px;
+        }
+
+        .tf-page .tf-hero h1 {
+            letter-spacing: -.7px;
+        }
+
+        .tf-page .tf-panel-head,
+        .tf-page .tf-filter {
+            padding: 18px;
+        }
+
+        .tf-page .tf-stat {
+            padding: 17px;
+            border-radius: 16px;
+        }
+
+        .tf-page .tf-stat-value {
+            font-size: 1.7rem;
+        }
+    }
+</style>
+
+<div class="container tf-page">
+
+    <!-- Hero -->
+    <section class="tf-hero">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-4 position-relative"
+             style="z-index:1;">
+            <div>
+                <div class="tf-eyebrow">TASKFLOW WORKSPACE</div>
+                <h1>Make every day count.</h1>
+                <p>Plan your work, track your progress, and turn your goals into accomplishments.</p>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-action="Create" class="tf-btn-light">
+                    <span aria-hidden="true">＋</span> Create Task
+                </a>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="tf-btn-glass">
+                    Dashboard ↗
+                </a>
+            </div>
         </div>
-
-        <div class="d-flex flex-wrap gap-2">
-            <a asp-action="Create" class="btn btn-primary">
-                + Create Task
-            </a>
-
-            <a asp-controller="Home"
-               asp-action="Index"
-               class="btn btn-outline-secondary">
-                Dashboard
-            </a>
-        </div>
-    </div>
+    </section>
 
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success alert-dismissible fade show"
+        <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4"
              role="alert">
             @TempData["SuccessMessage"]
-
             <button type="button"
                     class="btn-close"
                     data-bs-dismiss="alert"
@@ -42,271 +500,254 @@
         </div>
     }
 
-    <!-- Search and Filter -->
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body">
+    <!-- Summary cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="tf-stat">
+                <div class="tf-stat-top">
+                    <span class="tf-stat-label">Tasks in view</span>
+                    <span class="tf-stat-icon tf-purple">▤</span>
+                </div>
+                <div class="tf-stat-value">@tasks.Count</div>
+                <div class="tf-stat-note">Matching your filters</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="tf-stat">
+                <div class="tf-stat-top">
+                    <span class="tf-stat-label">Pending</span>
+                    <span class="tf-stat-icon tf-orange">◷</span>
+                </div>
+                <div class="tf-stat-value">@pendingCount</div>
+                <div class="tf-stat-note">Waiting to get started</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="tf-stat">
+                <div class="tf-stat-top">
+                    <span class="tf-stat-label">In progress</span>
+                    <span class="tf-stat-icon tf-blue">↗</span>
+                </div>
+                <div class="tf-stat-value">@progressCount</div>
+                <div class="tf-stat-note">Currently in motion</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="tf-stat">
+                <div class="tf-stat-top">
+                    <span class="tf-stat-label">Completed</span>
+                    <span class="tf-stat-icon tf-green">✓</span>
+                </div>
+                <div class="tf-stat-value">@completedCount</div>
+                <div class="tf-stat-note">Successfully finished</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main task panel -->
+    <section class="tf-panel">
+
+        <div class="tf-panel-head d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="tf-heading">Your task board</h2>
+                <p class="tf-subheading">Everything you need to keep your work moving.</p>
+            </div>
+
+            <span class="tf-count">@tasks.Count task(s)</span>
+        </div>
+
+        <!-- Search and filters -->
+        <div class="tf-filter">
             <form asp-action="Index" method="get">
-                <div class="row g-3">
+                <div class="row g-3 align-items-end">
 
-                    <div class="col-12 col-md-4">
-                        <label for="searchTerm" class="form-label">
-                            Search by Title
-                        </label>
-
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <label for="searchTerm" class="form-label">Search tasks</label>
                         <input type="text"
                                id="searchTerm"
                                name="searchTerm"
                                value="@ViewBag.SearchTerm"
                                class="form-control"
-                               placeholder="Enter task title..." />
+                               placeholder="Type a task title..." />
                     </div>
 
-                    <div class="col-12 col-md-3">
-                        <label for="status" class="form-label">
-                            Status Filter
-                        </label>
-
-                        <select id="status"
-                                name="status"
-                                class="form-select">
-                            <option value="">All Statuses</option>
-                            <option value="Pending"
-                                    selected="@(ViewBag.SelectedStatus == "Pending")">
-                                Pending
-                            </option>
-                            <option value="In Progress"
-                                    selected="@(ViewBag.SelectedStatus == "In Progress")">
-                                In Progress
-                            </option>
-                            <option value="Completed"
-                                    selected="@(ViewBag.SelectedStatus == "Completed")">
-                                Completed
-                            </option>
+                    <div class="col-6 col-md-3 col-xl-2">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-select">
+                            <option value="">All statuses</option>
+                            <option value="Pending" selected="@(ViewBag.SelectedStatus == "Pending")">Pending</option>
+                            <option value="In Progress" selected="@(ViewBag.SelectedStatus == "In Progress")">In Progress</option>
+                            <option value="Completed" selected="@(ViewBag.SelectedStatus == "Completed")">Completed</option>
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-3">
-                        <label for="priority" class="form-label">
-                            Priority Filter
-                        </label>
-
-                        <select id="priority"
-                                name="priority"
-                                class="form-select">
-                            <option value="">All Priorities</option>
-                            <option value="Low"
-                                    selected="@(ViewBag.SelectedPriority == "Low")">
-                                Low
-                            </option>
-                            <option value="Medium"
-                                    selected="@(ViewBag.SelectedPriority == "Medium")">
-                                Medium
-                            </option>
-                            <option value="High"
-                                    selected="@(ViewBag.SelectedPriority == "High")">
-                                High
-                            </option>
+                    <div class="col-6 col-md-3 col-xl-2">
+                        <label for="priority" class="form-label">Priority</label>
+                        <select id="priority" name="priority" class="form-select">
+                            <option value="">All priorities</option>
+                            <option value="Low" selected="@(ViewBag.SelectedPriority == "Low")">Low</option>
+                            <option value="Medium" selected="@(ViewBag.SelectedPriority == "Medium")">Medium</option>
+                            <option value="High" selected="@(ViewBag.SelectedPriority == "High")">High</option>
                         </select>
                     </div>
 
-                    <div class="col-12 col-md-2 d-flex align-items-end gap-2">
-                        <button type="submit"
-                                class="btn btn-primary">
-                            Search
+                    <div class="col-12 col-xl-4 d-flex gap-2">
+                        <button type="submit" class="tf-search-btn flex-grow-1">
+                            Search tasks
                         </button>
 
-                        <a asp-action="Index"
-                           class="btn btn-outline-secondary">
-                            Clear
+                        <a asp-action="Index" class="tf-clear-btn">
+                            Reset
                         </a>
                     </div>
 
                 </div>
             </form>
         </div>
-    </div>
 
-    <!-- Task List -->
-    <div class="card border-0 shadow-sm">
-        <div class="card-body">
+        @if (tasks.Count > 0)
+        {
+            <div class="tf-table-wrap">
+                <table class="table tf-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Task details</th>
+                            <th scope="col">Priority</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Due date</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
 
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-                <h5 class="fw-bold mb-0">Task List</h5>
-
-                <span class="badge bg-primary">
-                    @tasks.Count Tasks
-                </span>
-            </div>
-
-            @if (tasks.Count > 0)
-            {
-                <div class="table-responsive">
-                    <table class="table align-middle table-hover">
-                        <thead class="table-light">
+                    <tbody>
+                        @foreach (var task in tasks)
+                        {
                             <tr>
-                                <th scope="col">Task</th>
-                                <th scope="col">Priority</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Due Date</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
+                                <td>
+                                    <span class="tf-task-title">@task.Title</span>
 
-                        <tbody>
-                            @foreach (var task in tasks)
-                            {
-                                <tr>
-                                    <td class="text-break">
-                                        <strong>@task.Title</strong>
+                                    @if (!string.IsNullOrWhiteSpace(task.Description))
+                                    {
+                                        <div class="tf-task-desc">@task.Description</div>
+                                    }
+                                </td>
 
-                                        @if (!string.IsNullOrWhiteSpace(task.Description))
-                                        {
-                                            <div class="small text-secondary mt-1">
-                                                @task.Description
-                                            </div>
-                                        }
-                                    </td>
+                                <td>
+                                    @if (task.Priority == "High")
+                                    {
+                                        <span class="tf-badge tf-priority-high">High</span>
+                                    }
+                                    else if (task.Priority == "Medium")
+                                    {
+                                        <span class="tf-badge tf-priority-medium">Medium</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="tf-badge tf-priority-low">@task.Priority</span>
+                                    }
+                                </td>
 
-                                    <td>
-                                        @if (task.Priority == "High")
-                                        {
-                                            <span class="badge bg-danger">
-                                                High
-                                            </span>
-                                        }
-                                        else if (task.Priority == "Medium")
-                                        {
-                                            <span class="badge bg-warning text-dark">
-                                                Medium
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-success">
-                                                @task.Priority
-                                            </span>
-                                        }
-                                    </td>
+                                <td>
+                                    @if (task.Status == "Completed")
+                                    {
+                                        <span class="tf-badge tf-status-completed">Completed</span>
+                                    }
+                                    else if (task.Status == "In Progress")
+                                    {
+                                        <span class="tf-badge tf-status-progress">In Progress</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="tf-badge tf-status-pending">@task.Status</span>
+                                    }
 
-                                    <td>
-                                        @if (task.Status == "Completed")
-                                        {
-                                            <span class="badge bg-success">
-                                                Completed
-                                            </span>
-                                        }
-                                        else if (task.Status == "In Progress")
-                                        {
-                                            <span class="badge bg-primary">
-                                                In Progress
-                                            </span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">
-                                                @task.Status
-                                            </span>
-                                        }
+                                    <form asp-action="UpdateStatus" method="post" class="tf-mini-form mt-2">
+                                        @Html.AntiForgeryToken()
 
-                                        <form asp-action="UpdateStatus"
-                                              method="post"
-                                              class="mt-2">
+                                        <input type="hidden" name="id" value="@task.Id" />
 
-                                            @Html.AntiForgeryToken()
+                                        <label class="visually-hidden" for="status-@task.Id">
+                                            Change status for @task.Title
+                                        </label>
 
-                                            <input type="hidden"
-                                                   name="id"
-                                                   value="@task.Id" />
+                                        <select id="status-@task.Id"
+                                                name="status"
+                                                class="form-select">
+                                            <option value="Pending" selected="@(task.Status == "Pending")">Pending</option>
+                                            <option value="In Progress" selected="@(task.Status == "In Progress")">In Progress</option>
+                                            <option value="Completed" selected="@(task.Status == "Completed")">Completed</option>
+                                        </select>
 
-                                            <label class="visually-hidden"
-                                                   for="status-@task.Id">
-                                                Change status for @task.Title
-                                            </label>
+                                        <button type="submit" class="tf-update-btn">
+                                            Update status
+                                        </button>
+                                    </form>
+                                </td>
 
-                                            <select id="status-@task.Id"
-                                                    name="status"
-                                                    class="form-select form-select-sm mb-2">
-                                                <option value="Pending"
-                                                        selected="@(task.Status == "Pending")">
-                                                    Pending
-                                                </option>
-
-                                                <option value="In Progress"
-                                                        selected="@(task.Status == "In Progress")">
-                                                    In Progress
-                                                </option>
-
-                                                <option value="Completed"
-                                                        selected="@(task.Status == "Completed")">
-                                                    Completed
-                                                </option>
-                                            </select>
-
-                                            <button type="submit"
-                                                    class="btn btn-sm btn-outline-success">
-                                                Update Status
-                                            </button>
-                                        </form>
-                                    </td>
-
-                                    <td>
-                                       @if (task.DueDate.HasValue &&
-     task.DueDate.Value < DateOnly.FromDateTime(DateTime.Today) &&
-     task.Status != "Completed")
-                                        {
-                                            <span class="badge bg-danger">
-                                                Overdue
-                                            </span>
-
-                                            <div class="small text-danger mt-1">
-                                                @task.DueDate.Value.ToString("dd MMM yyyy")
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
-                                        }
-                                    </td>
-
-                                    <td>
-                                        <div class="d-flex flex-wrap gap-2">
-                                            <a asp-action="Edit"
-                                               asp-route-id="@task.Id"
-                                               class="btn btn-sm btn-outline-primary">
-                                                Edit
-                                            </a>
-
-                                            <a asp-action="Delete"
-                                               asp-route-id="@task.Id"
-                                               class="btn btn-sm btn-outline-danger">
-                                                Delete
-                                            </a>
+                                <td>
+                                    @if (task.DueDate.HasValue &&
+                                         task.DueDate.Value < DateOnly.FromDateTime(DateTime.Today) &&
+                                         task.Status != "Completed")
+                                    {
+                                        <span class="tf-badge tf-overdue">Overdue</span>
+                                        <div class="tf-date mt-2">
+                                            @task.DueDate.Value.ToString("dd MMM yyyy")
                                         </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="text-center py-5">
-                    <h4>No tasks found</h4>
+                                    }
+                                    else
+                                    {
+                                        <span class="tf-date">
+                                            @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
+                                        </span>
+                                    }
+                                </td>
 
-                    <p class="text-secondary">
-                        Try changing your search or filters,
-                        or create a new task.
-                    </p>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a asp-action="Edit"
+                                           asp-route-id="@task.Id"
+                                           class="tf-action tf-action-edit">
+                                            Edit
+                                        </a>
 
-                    <a asp-action="Create"
-                       class="btn btn-primary">
-                        Create Task
+                                        <a asp-action="Delete"
+                                           asp-route-id="@task.Id"
+                                           class="tf-action tf-action-delete">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="tf-empty">
+                <div class="tf-empty-icon">✓</div>
+                <h3 class="h5 fw-bold mb-2">A fresh start!</h3>
+                <p class="text-secondary mb-4">
+                    No tasks match your current search. Create a task or reset your filters to see everything.
+                </p>
+
+                <div class="d-flex justify-content-center flex-wrap gap-2">
+                    <a asp-action="Create" class="tf-search-btn text-decoration-none">
+                        + Create your first task
+                    </a>
+                    <a asp-action="Index" class="tf-clear-btn">
+                        Reset filters
                     </a>
                 </div>
-            }
+            </div>
+        }
+    </section>
 
-        </div>
+    <div class="tf-footer">
+        Stay focused. Make progress. One task at a time.
     </div>
-
 </div>
