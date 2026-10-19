@@ -20,7 +20,7 @@ public class TaskItem
     [Required]
     public string Priority { get; set; } = "Medium";
 
-    public DateTime? DueDate { get; set; }
+    public DateOnly? DueDate { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
