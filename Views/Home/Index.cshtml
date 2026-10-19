@@ -1,202 +1,787 @@
-﻿
+```cshtml
 @model TaskFlow.ViewModels.DashboardViewModel
 
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "TaskFlow";
 
     var completionPercentage = Model.TotalTasks > 0
-        ? (int)Math.Round(
-            (double)Model.CompletedTasks / Model.TotalTasks * 100)
+        ? (int)Math.Round((double)Model.CompletedTasks / Model.TotalTasks * 100)
         : 0;
 }
 
-<div class="container py-4">
+<style>
+    .tf-home {
+        --tf-primary: #635bdb;
+        --tf-purple: #8b5cf6;
+        --tf-ink: #172033;
+        --tf-muted: #64748b;
+        color: var(--bs-body-color, var(--tf-ink));
+        padding-bottom: 36px;
+    }
+
+    .tf-home .tf-hero {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        border-radius: 28px;
+        padding: clamp(32px, 6vw, 68px);
+        background: linear-gradient(125deg, #111827 0%, #27265c 55%, #6941c6 100%);
+        color: #fff;
+        margin-bottom: 30px;
+    }
+
+    .tf-home .tf-hero::before,
+    .tf-home .tf-hero::after {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .tf-home .tf-hero::before {
+        width: 340px;
+        height: 340px;
+        right: -100px;
+        top: -155px;
+        border: 1px solid rgba(255,255,255,.18);
+        box-shadow: 0 0 0 30px rgba(255,255,255,.035),
+                    0 0 0 65px rgba(255,255,255,.025);
+    }
+
+    .tf-home .tf-hero::after {
+        width: 210px;
+        height: 210px;
+        right: 17%;
+        bottom: -155px;
+        background: rgba(167,139,250,.14);
+        filter: blur(2px);
+    }
+
+    .tf-home .tf-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid rgba(255,255,255,.2);
+        background: rgba(255,255,255,.09);
+        color: #e9e7ff;
+        padding: 8px 13px;
+        border-radius: 50px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .7px;
+        text-transform: uppercase;
+        margin-bottom: 20px;
+    }
+
+    .tf-home .tf-hero h1 {
+        font-size: clamp(35px, 5.5vw, 61px);
+        line-height: 1.08;
+        letter-spacing: -2px;
+        font-weight: 850;
+        max-width: 690px;
+        margin: 0 0 19px;
+    }
+
+    .tf-home .tf-gradient-text {
+        background: linear-gradient(90deg, #c4b5fd, #93c5fd);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .tf-home .tf-hero-copy {
+        max-width: 570px;
+        font-size: 16px;
+        line-height: 1.8;
+        color: #d5d8ed;
+        margin-bottom: 28px;
+    }
+
+    .tf-home .tf-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-height: 49px;
+        padding: 12px 21px;
+        border-radius: 12px;
+        font-weight: 750;
+        text-decoration: none;
+        transition: transform .2s, box-shadow .2s, background .2s;
+    }
+
+    .tf-home .tf-button:hover {
+        transform: translateY(-2px);
+    }
+
+    .tf-home .tf-button-light {
+        background: #fff;
+        color: #3730a3;
+        box-shadow: 0 8px 22px rgba(0,0,0,.15);
+    }
+
+    .tf-home .tf-button-light:hover {
+        color: #4f46e5;
+        box-shadow: 0 12px 28px rgba(0,0,0,.22);
+    }
+
+    .tf-home .tf-button-ghost {
+        border: 1px solid rgba(255,255,255,.32);
+        color: #fff;
+        background: rgba(255,255,255,.06);
+    }
+
+    .tf-home .tf-button-ghost:hover {
+        color: #fff;
+        background: rgba(255,255,255,.14);
+    }
+
+    .tf-home .tf-section-heading {
+        font-size: 22px;
+        letter-spacing: -.6px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .tf-home .tf-muted {
+        color: var(--tf-muted);
+    }
+
+    .tf-home .tf-stat {
+        height: 100%;
+        padding: 23px;
+        border: 1px solid var(--bs-border-color, #e8eaf2);
+        border-radius: 19px;
+        background: var(--bs-body-bg, #fff);
+        box-shadow: 0 5px 22px rgba(15,23,42,.035);
+        transition: transform .2s, box-shadow .2s;
+    }
+
+    .tf-home .tf-stat:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(15,23,42,.07);
+    }
+
+    .tf-home .tf-stat-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .tf-home .tf-stat-icon {
+        width: 45px;
+        height: 45px;
+        display: grid;
+        place-items: center;
+        border-radius: 14px;
+        font-size: 20px;
+        font-weight: 800;
+    }
+
+    .tf-home .tf-icon-violet { color: #635bdb; background: #eeecff; }
+    .tf-home .tf-icon-amber { color: #b7791f; background: #fff4d6; }
+    .tf-home .tf-icon-blue { color: #2563eb; background: #e6f0ff; }
+    .tf-home .tf-icon-green { color: #16835d; background: #ddf8eb; }
+
+    .tf-home .tf-stat-label {
+        font-size: 13px;
+        font-weight: 650;
+        color: var(--tf-muted);
+    }
+
+    .tf-home .tf-stat-number {
+        font-size: 35px;
+        line-height: 1.1;
+        font-weight: 850;
+        letter-spacing: -1.2px;
+        margin-bottom: 8px;
+    }
+
+    .tf-home .tf-panel {
+        height: 100%;
+        border: 1px solid var(--bs-border-color, #e8eaf2);
+        border-radius: 21px;
+        background: var(--bs-body-bg, #fff);
+        box-shadow: 0 5px 24px rgba(15,23,42,.035);
+        overflow: hidden;
+    }
+
+    .tf-home .tf-panel-head {
+        padding: 24px 25px 18px;
+    }
+
+    .tf-home .tf-panel-content {
+        padding: 0 25px 25px;
+    }
+
+    .tf-home .tf-progress-track {
+        height: 12px;
+        overflow: hidden;
+        border-radius: 20px;
+        background: var(--bs-secondary-bg, #edf0f6);
+    }
+
+    .tf-home .tf-progress-fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #635bdb, #a78bfa);
+        transition: width .35s ease;
+    }
+
+    .tf-home .tf-progress-percent {
+        font-size: 32px;
+        font-weight: 850;
+        letter-spacing: -1px;
+        color: var(--tf-primary);
+    }
+
+    .tf-home .tf-progress-detail {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--tf-muted);
+        margin-top: 13px;
+    }
+
+    .tf-home .tf-task-table {
+        margin-bottom: 0;
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--bs-body-color);
+    }
+
+    .tf-home .tf-task-table thead th {
+        padding: 14px 18px;
+        background: var(--bs-secondary-bg, #f8fafc);
+        color: var(--tf-muted);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: .65px;
+        font-weight: 800;
+        white-space: nowrap;
+        border-bottom: 1px solid var(--bs-border-color, #e8eaf2);
+    }
+
+    .tf-home .tf-task-table tbody td {
+        padding: 17px 18px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--bs-border-color, #eef0f5);
+        font-size: 13px;
+    }
+
+    .tf-home .tf-task-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .tf-home .tf-task-title {
+        font-weight: 750;
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .tf-home .tf-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 50px;
+        font-size: 11px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .tf-home .tf-pill-completed { background: #dcfce7; color: #166534; }
+    .tf-home .tf-pill-progress { background: #dbeafe; color: #1d4ed8; }
+    .tf-home .tf-pill-pending { background: #f1f5f9; color: #475569; }
+
+    .tf-home .tf-feature {
+        height: 100%;
+        padding: 25px;
+        border: 1px solid rgba(255,255,255,.13);
+        border-radius: 19px;
+        background: rgba(255,255,255,.065);
+    }
+
+    .tf-home .tf-feature-icon {
+        font-size: 24px;
+        margin-bottom: 17px;
+    }
+
+    .tf-home .tf-feature h3 {
+        font-size: 17px;
+        font-weight: 800;
+        margin-bottom: 9px;
+    }
+
+    .tf-home .tf-feature p {
+        color: #d5d8ed;
+        line-height: 1.7;
+        font-size: 13px;
+        margin-bottom: 0;
+    }
+
+    .tf-home .tf-empty {
+        text-align: center;
+        padding: 32px 18px;
+    }
+
+    .tf-home .tf-empty-icon {
+        width: 58px;
+        height: 58px;
+        display: grid;
+        place-items: center;
+        margin: 0 auto 16px;
+        border-radius: 18px;
+        background: #eeecff;
+        color: #635bdb;
+        font-size: 26px;
+    }
+
+    .tf-home .tf-link {
+        color: var(--tf-primary);
+        font-weight: 750;
+        text-decoration: none;
+    }
+
+    .tf-home .tf-link:hover {
+        text-decoration: underline;
+    }
+
+    .tf-home .tf-landing-section {
+        margin-top: 44px;
+        margin-bottom: 44px;
+    }
+
+    .tf-home .tf-landing-heading {
+        font-size: clamp(25px, 4vw, 37px);
+        font-weight: 850;
+        letter-spacing: -1px;
+        line-height: 1.2;
+    }
+
+    .tf-home .tf-trust-note {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 9px;
+        color: var(--tf-muted);
+        font-size: 12px;
+        margin-top: 24px;
+    }
+
+    @@media (max-width: 575.98px) {
+        .tf-home .tf-hero {
+            border-radius: 20px;
+            padding: 30px 23px;
+        }
+
+        .tf-home .tf-hero h1 {
+            letter-spacing: -1.2px;
+        }
+
+        .tf-home .tf-stat {
+            padding: 17px;
+            border-radius: 16px;
+        }
+
+        .tf-home .tf-stat-number {
+            font-size: 29px;
+        }
+
+        .tf-home .tf-stat-icon {
+            width: 39px;
+            height: 39px;
+        }
+
+        .tf-home .tf-panel-head {
+            padding: 21px 18px 16px;
+        }
+
+        .tf-home .tf-panel-content {
+            padding: 0 18px 21px;
+        }
+
+        .tf-home .tf-task-table thead th,
+        .tf-home .tf-task-table tbody td {
+            padding: 13px 12px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .tf-home *,
+        .tf-home *::before,
+        .tf-home *::after {
+            transition: none !important;
+        }
+    }
+</style>
+
+<div class="container py-4 tf-home">
 
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-            <div>
-                <h1 class="fw-bold">Welcome to TaskFlow</h1>
-                <p class="text-secondary mb-0">
-                    Organize your work and keep track of your progress.
-                </p>
+        <section class="tf-hero">
+            <div class="tf-eyebrow">
+                <span>✦</span> YOUR PRODUCTIVITY SPACE
             </div>
 
-            <a asp-controller="Tasks" asp-action="Create"
-               class="btn btn-primary">
-                + Create Task
-            </a>
-        </div>
+            <h1>
+                Turn your plans into
+                <span class="tf-gradient-text">progress.</span>
+            </h1>
 
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-lg-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <p class="text-secondary mb-2">Total Tasks</p>
-                        <h2 class="fw-bold">@Model.TotalTasks</h2>
-                        <small class="text-secondary">All your tasks</small>
+            <p class="tf-hero-copy">
+                Every goal starts with a clear plan. Organize your tasks,
+                manage priorities and keep moving forward with TaskFlow.
+            </p>
+
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Tasks" asp-action="Create"
+                   class="tf-button tf-button-light">
+                    + Create a task
+                </a>
+
+                <a asp-controller="Tasks" asp-action="Index"
+                   class="tf-button tf-button-ghost">
+                    Explore my tasks →
+                </a>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-end gap-2 mb-3">
+                <div>
+                    <h2 class="tf-section-heading">Your workspace</h2>
+                    <p class="tf-muted mb-0 small">
+                        A clear picture of where you stand today.
+                    </p>
+                </div>
+                <span class="tf-muted small">Task overview</span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-6 col-xl-3">
+                    <div class="tf-stat">
+                        <div class="tf-stat-top">
+                            <span class="tf-stat-label">Total tasks</span>
+                            <span class="tf-stat-icon tf-icon-violet">▤</span>
+                        </div>
+                        <div class="tf-stat-number">@Model.TotalTasks</div>
+                        <div class="tf-muted small">All your tasks</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-xl-3">
+                    <div class="tf-stat">
+                        <div class="tf-stat-top">
+                            <span class="tf-stat-label">Pending</span>
+                            <span class="tf-stat-icon tf-icon-amber">◷</span>
+                        </div>
+                        <div class="tf-stat-number">@Model.PendingTasks</div>
+                        <div class="tf-muted small">Ready to get started</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-xl-3">
+                    <div class="tf-stat">
+                        <div class="tf-stat-top">
+                            <span class="tf-stat-label">In progress</span>
+                            <span class="tf-stat-icon tf-icon-blue">↗</span>
+                        </div>
+                        <div class="tf-stat-number">@Model.InProgressTasks</div>
+                        <div class="tf-muted small">Work in motion</div>
+                    </div>
+                </div>
+
+                <div class="col-6 col-xl-3">
+                    <div class="tf-stat">
+                        <div class="tf-stat-top">
+                            <span class="tf-stat-label">Completed</span>
+                            <span class="tf-stat-icon tf-icon-green">✓</span>
+                        </div>
+                        <div class="tf-stat-number">@Model.CompletedTasks</div>
+                        <div class="tf-muted small">Successfully finished</div>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <div class="col-6 col-lg-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <p class="text-secondary mb-2">Pending</p>
-                        <h2 class="fw-bold text-warning">@Model.PendingTasks</h2>
-                        <small class="text-secondary">Waiting to start</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <p class="text-secondary mb-2">In Progress</p>
-                        <h2 class="fw-bold text-primary">@Model.InProgressTasks</h2>
-                        <small class="text-secondary">Currently working</small>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-6 col-lg-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <p class="text-secondary mb-2">Completed</p>
-                        <h2 class="fw-bold text-success">@Model.CompletedTasks</h2>
-                        <small class="text-secondary">Tasks finished</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Overall Progress -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                        <h4 class="fw-bold mb-1">Overall Progress</h4>
-                        <p class="text-secondary mb-0">
-                            Track your task completion.
+        <section class="row g-3 mb-4">
+            <div class="col-12 col-lg-5">
+                <div class="tf-panel">
+                    <div class="tf-panel-head">
+                        <h2 class="tf-section-heading">Overall progress</h2>
+                        <p class="tf-muted small mb-0">
+                            Every completed task moves you forward.
                         </p>
                     </div>
-                    <h3 class="fw-bold text-success mb-0">
-                        @completionPercentage%
-                    </h3>
-                </div>
 
-                <div class="progress mt-3"
-                     role="progressbar"
-                     aria-label="Task completion progress"
-                     aria-valuenow="@completionPercentage"
-                     aria-valuemin="0"
-                     aria-valuemax="100"
-                     style="height: 14px;">
-                    <div class="progress-bar bg-success"
-                         style="width: @completionPercentage%;">
+                    <div class="tf-panel-content">
+                        <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                            <span class="tf-muted small">Completion rate</span>
+                            <span class="tf-progress-percent">@completionPercentage%</span>
+                        </div>
+
+                        <div class="tf-progress-track"
+                             role="progressbar"
+                             aria-label="Task completion progress"
+                             aria-valuenow="@completionPercentage"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                            <div class="tf-progress-fill"
+                                 style="width: @completionPercentage%;"></div>
+                        </div>
+
+                        <div class="tf-progress-detail">
+                            <span>@Model.CompletedTasks completed</span>
+                            <span>@Model.TotalTasks total</span>
+                        </div>
+
+                        @if (Model.TotalTasks == 0)
+                        {
+                            <p class="tf-muted small mt-4 mb-0">
+                                Create your first task to start tracking your progress.
+                            </p>
+                        }
+                        else if (completionPercentage == 100)
+                        {
+                            <p class="small mt-4 mb-0">
+                                <strong>Excellent work!</strong>
+                                You have completed all your tasks.
+                            </p>
+                        }
                     </div>
                 </div>
-
-                <small class="text-secondary d-block mt-2">
-                    @Model.CompletedTasks of @Model.TotalTasks tasks completed
-                </small>
             </div>
-        </div>
 
-        <!-- Recent Tasks -->
-        <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+            <div class="col-12 col-lg-7">
+                <div class="tf-panel">
+                    <div class="tf-panel-head">
+                        <div class="d-flex align-items-center justify-content-between gap-2">
+                            <div>
+                                <h2 class="tf-section-heading">Your next move</h2>
+                                <p class="tf-muted small mb-0">
+                                    Keep your workflow moving.
+                                </p>
+                            </div>
+                            <span class="tf-stat-icon tf-icon-violet">✦</span>
+                        </div>
+                    </div>
+
+                    <div class="tf-panel-content">
+                        <div class="p-3 rounded-4 mb-3"
+                             style="background: var(--bs-secondary-bg, #f8fafc);">
+                            <div class="fw-bold mb-1">Stay organized</div>
+                            <div class="tf-muted small">
+                                Break your workload into clear, manageable tasks.
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <a asp-controller="Tasks" asp-action="Create"
+                               class="tf-button"
+                               style="background:#635bdb;color:#fff;">
+                                + Add a task
+                            </a>
+                            <a asp-controller="Tasks" asp-action="Index"
+                               class="tf-button border"
+                               style="color:var(--bs-body-color);border-color:var(--bs-border-color)!important;">
+                                Manage tasks →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tf-panel">
+            <div class="tf-panel-head">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                     <div>
-                        <h4 class="fw-bold mb-1">Recent Tasks</h4>
-                        <p class="text-secondary mb-0">
-                            Your latest tasks at a glance.
+                        <h2 class="tf-section-heading">Recent tasks</h2>
+                        <p class="tf-muted small mb-0">
+                            A quick look at your latest work.
                         </p>
                     </div>
 
                     <a asp-controller="Tasks" asp-action="Index"
-                       class="btn btn-outline-primary">
-                        View All
+                       class="tf-link small">
+                        View all tasks →
                     </a>
                 </div>
-
-                @if (Model.RecentTasks.Any())
-                {
-                    <div class="table-responsive">
-                        <table class="table align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Task</th>
-                                    <th>Priority</th>
-                                    <th>Status</th>
-                                    <th>Due Date</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var task in Model.RecentTasks)
-                                {
-                                    <tr>
-                                        <td>
-                                            <strong>@task.Title</strong>
-                                        </td>
-                                        <td>@task.Priority</td>
-                                        <td>
-                                            @if (task.Status == "Completed")
-                                            {
-                                                <span class="badge bg-success">Completed</span>
-                                            }
-                                            else if (task.Status == "In Progress")
-                                            {
-                                                <span class="badge bg-primary">In Progress</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge bg-secondary">Pending</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-                else
-                {
-                    <div class="text-center py-4">
-                        <h5>No tasks yet</h5>
-                        <p class="text-secondary">
-                            Create your first task to see your dashboard statistics.
-                        </p>
-                        <a asp-controller="Tasks" asp-action="Create"
-                           class="btn btn-primary">
-                            Create Your First Task
-                        </a>
-                    </div>
-                }
             </div>
-        </div>
+
+            @if (Model.RecentTasks.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table tf-task-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Task</th>
+                                <th>Priority</th>
+                                <th>Status</th>
+                                <th>Due date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in Model.RecentTasks)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="tf-task-title">@task.Title</div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold">@task.Priority</span>
+                                    </td>
+                                    <td>
+                                        @if (task.Status == "Completed")
+                                        {
+                                            <span class="tf-pill tf-pill-completed">✓ Completed</span>
+                                        }
+                                        else if (task.Status == "In Progress")
+                                        {
+                                            <span class="tf-pill tf-pill-progress">↗ In progress</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="tf-pill tf-pill-pending">◷ Pending</span>
+                                        }
+                                    </td>
+                                    <td class="text-nowrap">
+                                        @(task.DueDate?.ToString("dd MMM yyyy") ?? "No due date")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="tf-empty">
+                    <div class="tf-empty-icon">✦</div>
+                    <h3 class="h5 fw-bold">Your next achievement starts here</h3>
+                    <p class="tf-muted small mb-3">
+                        You don't have any tasks yet. Create one to get started.
+                    </p>
+                    <a asp-controller="Tasks" asp-action="Create"
+                       class="tf-button"
+                       style="background:#635bdb;color:#fff;">
+                        Create your first task →
+                    </a>
+                </div>
+            }
+        </section>
     }
     else
     {
-        <div class="text-center py-5">
-            <h1 class="display-4 fw-bold">Welcome to TaskFlow</h1>
-            <p class="lead text-secondary">
-                Organize your work and keep track of your progress.
+        <section class="tf-hero">
+            <div class="tf-eyebrow">
+                <span>✦</span> MEET YOUR NEW WORKSPACE
+            </div>
+
+            <h1>
+                Less chaos.<br />
+                <span class="tf-gradient-text">More progress.</span>
+            </h1>
+
+            <p class="tf-hero-copy">
+                Meet a simpler way to organize your day. Keep your tasks in
+                one place, focus on what matters and turn your plans into progress.
             </p>
 
+            <div class="d-flex flex-wrap gap-3">
+                <a asp-controller="Account" asp-action="Register"
+                   class="tf-button tf-button-light">
+                    Get started for free →
+                </a>
+
+                <a asp-controller="Account" asp-action="Login"
+                   class="tf-button tf-button-ghost">
+                    Sign in
+                </a>
+            </div>
+
+            <div class="tf-trust-note"
+                 style="justify-content:flex-start;color:#d5d8ed;">
+                <span>✓ Simple task management</span>
+                <span>·</span>
+                <span>✓ Track your progress</span>
+                <span>·</span>
+                <span>✓ Stay organized</span>
+            </div>
+        </section>
+
+        <section class="tf-landing-section">
+            <div class="text-center mb-4">
+                <div class="tf-eyebrow"
+                     style="background:#eeecff;color:#635bdb;border-color:#e3e0ff;">
+                    BUILT FOR YOUR DAY
+                </div>
+                <h2 class="tf-landing-heading">
+                    Everything you need to<br class="d-none d-md-block" />
+                    get things done.
+                </h2>
+                <p class="tf-muted mx-auto mt-3"
+                   style="max-width:570px;line-height:1.8;">
+                    Bring clarity to your work with a focused space for your
+                    tasks, priorities and progress.
+                </p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-md-4">
+                    <div class="tf-stat">
+                        <div class="tf-stat-icon tf-icon-violet mb-4">▤</div>
+                        <h3 class="h5 fw-bold">Organize your tasks</h3>
+                        <p class="tf-muted small mb-0" style="line-height:1.8;">
+                            Keep your work organized and find your tasks
+                            whenever you need them.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="tf-stat">
+                        <div class="tf-stat-icon tf-icon-blue mb-4">↗</div>
+                        <h3 class="h5 fw-bold">Prioritize what matters</h3>
+                        <p class="tf-muted small mb-0" style="line-height:1.8;">
+                            Set task priorities and make it easier to focus
+                            on your next important step.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <div class="tf-stat">
+                        <div class="tf-stat-icon tf-icon-green mb-4">✓</div>
+                        <h3 class="h5 fw-bold">See your progress</h3>
+                        <p class="tf-muted small mb-0" style="line-height:1.8;">
+                            Track completed work and get a clearer view
+                            of your productivity over time.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tf-hero text-center"
+                 style="padding:42px 25px;margin-top:44px;margin-bottom:0;">
+            <h2 class="fw-bold mb-3"
+                style="font-size:clamp(27px,4vw,38px);letter-spacing:-1px;">
+                Make room for better work.
+            </h2>
+            <p class="tf-hero-copy mx-auto">
+                Start organizing your tasks with TaskFlow today.
+            </p>
             <a asp-controller="Account" asp-action="Register"
-               class="btn btn-primary btn-lg me-2">
-                Get Started
+               class="tf-button tf-button-light">
+                Create your account →
             </a>
-
-            <a asp-controller="Account" asp-action="Login"
-               class="btn btn-outline-primary btn-lg">
-                Login
-            </a>
-        </div>
+        </section>
     }
-
 </div>
+```
