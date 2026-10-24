@@ -1,20 +1,19 @@
-
 # TaskFlow — Task Management System
 
-TaskFlow is a web-based task management application built with ASP.NET Core MVC. It helps users organize their daily work, manage tasks, track progress, and monitor deadlines.
+TaskFlow is a web-based task management application built with ASP.NET Core MVC. It helps users organize daily work, manage tasks, track progress, and monitor deadlines through a clean, modern dashboard.
 
 ## Features
 
-- **User Authentication:** Register, log in, and log out securely.
-- **Personal Task Management:** Each user can manage their own tasks.
-- **Create, Read, Update, Delete (CRUD):** Create new tasks, view details, edit tasks, and delete them.
-- **Search Tasks:** Find tasks by title.
-- **Filter Tasks:** Filter tasks by status and priority.
-- **Quick Status Update:** Change a task's status directly from the task list.
+- **User Authentication:** Register, log in, and log out using ASP.NET Core Identity.
+- **Personal Task Management:** Manage personal tasks.
+- **Task CRUD Operations:** Create, view, edit, and delete tasks.
+- **Task Search:** Find tasks by title.
+- **Status and Priority Filters:** Filter tasks based on status and priority.
+- **Quick Status Updates:** Update task status directly from the task list.
 - **Dashboard:** View total, pending, in-progress, and completed tasks.
-- **Progress Bar:** Track task completion progress.
+- **Progress Tracking:** Monitor completion progress through a progress bar.
 - **Priority Management:** Organize tasks by priority.
-- **Due Date Tracking:** View task deadlines and identify overdue tasks.
+- **Due Date Tracking:** Set deadlines and monitor upcoming tasks.
 
 ## Technologies Used
 
@@ -24,9 +23,7 @@ TaskFlow is a web-based task management application built with ASP.NET Core MVC.
 - Entity Framework Core
 - SQLite
 - ASP.NET Core Identity
-- HTML
-- CSS
-- JavaScript
+- HTML, CSS, and JavaScript
 - Git and GitHub
 
 ## Getting Started
@@ -36,7 +33,7 @@ TaskFlow is a web-based task management application built with ASP.NET Core MVC.
 Install the following tools:
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
-- [Visual Studio Code](https://code.visualstudio.com/)
+- [Visual Studio](https://visualstudio.microsoft.com/) or [Visual Studio Code](https://code.visualstudio.com/)
 - [Git](https://git-scm.com/)
 
 ### Installation
@@ -47,19 +44,19 @@ Install the following tools:
    git clone https://github.com/Ashiqulislam171/TaskFlow.git
    ```
 
-2. Open the project folder:
+2. Navigate to the application project directory:
 
    ```bash
    cd TaskFlow/TaskFlow
    ```
 
-3. Restore the required packages:
+3. Restore dependencies:
 
    ```bash
    dotnet restore
    ```
 
-4. Apply the database migrations if they have not already been applied:
+4. If the database migrations are available and have not yet been applied, update the database:
 
    ```bash
    dotnet ef database update
@@ -77,33 +74,41 @@ Install the following tools:
    dotnet run
    ```
 
-7. Open the local URL displayed in the terminal in your browser.
+7. Open the local URL shown in the terminal.
+
+> Note: If the `dotnet ef` command is unavailable, install or run the Entity Framework Core CLI tool as required by your environment.
 
 ## How to Use
 
-1. Register a new account.
-2. Log in to access your dashboard.
+1. Register an account.
+2. Log in to access the application.
 3. Create tasks with a title, description, status, priority, and optional due date.
 4. Search for tasks or filter them by status and priority.
-5. Update task statuses as your work progresses.
+5. Update task statuses as work progresses.
 6. Edit or delete tasks when needed.
-7. Use the dashboard to monitor your overall progress.
+7. Use the dashboard to monitor task progress.
 
 ## Database
 
-TaskFlow uses SQLite to store application data and Entity Framework Core to manage database operations. ASP.NET Core Identity handles user authentication.
+TaskFlow uses SQLite for data storage and Entity Framework Core for database operations. ASP.NET Core Identity provides user authentication.
 
 ## Security
 
-Task operations are restricted to authenticated users. The application checks task ownership so users can access and manage only their own tasks.
+TaskFlow uses ASP.NET Core Identity for authentication. Task ownership and authorization should be verified against the application's implementation to ensure users can access only their own tasks.
 
 ## Future Improvements
 
 - Task categories and tags
 - Task sorting options
 - Notifications for approaching deadlines
-- Improved responsive UI
+- Additional responsive UI improvements
 - Unit and integration testing
+
+## Application Screenshot
+
+### Dashboard
+
+![TaskFlow Dashboard](wwwroot/images/dashboard.png)
 
 ## Author
 
@@ -114,9 +119,3 @@ GitHub: [Ashiqulislam171](https://github.com/Ashiqulislam171)
 ---
 
 *TaskFlow — Organize your work. Track your progress. Get things done.*
-
-## Application Screenshot
-
-### Dashboard
-
-![TaskFlow Dashboard](wwwroot/images/dashboard.png)
