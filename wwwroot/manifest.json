@@ -1,0 +1,20 @@
+﻿{
+  "id": "/",
+  "name": "TaskFlow - Task Manager",
+  "short_name": "TaskFlow",
+  "description": "Manage your tasks and stay productive.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/images/taskflow-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
