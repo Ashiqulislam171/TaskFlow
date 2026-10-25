@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Data;
@@ -8,7 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-// Register email service
+// Register HTTP client and email service
+builder.Services.AddHttpClient();
 builder.Services.AddTransient<EmailService>();
 
 var connectionString =

@@ -1,43 +1,36 @@
-
 using System.Net;
-using System.Net.Mail;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace TaskFlow.Services;
 
 public class EmailService
 {
     private readonly IConfiguration _configuration;
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public EmailService(IConfiguration configuration)
+    public EmailService(
+        IConfiguration configuration,
+        IHttpClientFactory httpClientFactory)
     {
         _configuration = configuration;
+        _httpClientFactory = httpClientFactory;
     }
 
     public async Task SendPasswordResetEmailAsync(
         string email,
         string resetLink)
     {
-        var smtpServer = _configuration["EmailSettings:SmtpServer"];
-        var smtpPort = int.Parse(
-            _configuration["EmailSettings:SmtpPort"] ?? "587");
-        var senderEmail = _configuration["EmailSettings:SenderEmail"];
-        var appPassword = _configuration["EmailSettings:AppPassword"];
+        var apiKey = _configuration["RESEND_API_KEY"];
 
-        if (string.IsNullOrWhiteSpace(smtpServer) ||
-            string.IsNullOrWhiteSpace(senderEmail) ||
-            string.IsNullOrWhiteSpace(appPassword))
+        if (string.IsNullOrWhiteSpace(apiKey))
         {
             throw new InvalidOperationException(
-                "Email settings are missing. Check Render environment variables.");
+                "RESEND_API_KEY is missing from environment variables.");
         }
 
-        using var message = new MailMessage();
-        message.From = new MailAddress(senderEmail, "TaskFlow");
-        message.To.Add(email);
-        message.Subject = "Reset Your TaskFlow Password";
-        message.IsBodyHtml = true;
-
-        message.Body = $"""
+        var html = $"""
             <h2>TaskFlow Password Reset</h2>
             <p>We received a request to reset your password.</p>
             <p>Click the link below to choose a new password:</p>
@@ -45,11 +38,36 @@ public class EmailService
             <p>If you did not request this, you can ignore this email.</p>
             """;
 
-        using var smtp = new SmtpClient(smtpServer, smtpPort);
-        smtp.EnableSsl = true;
-        smtp.Credentials = new NetworkCredential(
-            senderEmail, appPassword);
+        var payload = new
+        {
+            from = "TaskFlow <onboarding@resend.dev>",
+            to = new[] { email },
+            subject = "Reset Your TaskFlow Password",
+            html
+        };
 
-        await smtp.SendMailAsync(message);
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "https://api.resend.com/emails");
+
+        request.Headers.Authorization =
+            new AuthenticationHeaderValue("Bearer", apiKey);
+
+        request.Content = new StringContent(
+            JsonSerializer.Serialize(payload),
+            Encoding.UTF8,
+            "application/json");
+
+        var httpClient = _httpClientFactory.CreateClient();
+
+        using var response = await httpClient.SendAsync(request);
+        var responseBody =
+            await response.Content.ReadAsStringAsync();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new InvalidOperationException(
+                $"Resend email failed ({(int)response.StatusCode}): {responseBody}");
+        }
     }
 }
