@@ -1,12 +1,15 @@
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Data;
 using TaskFlow.Models;
+using TaskFlow.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
+
+// Register email service
+builder.Services.AddTransient<EmailService>();
 
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection");
@@ -25,21 +28,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
-    // Password policy
     options.Password.RequiredLength = 8;
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
 
-    // Account lockout policy
     options.Lockout.DefaultLockoutTimeSpan =
         TimeSpan.FromMinutes(5);
 
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.AllowedForNewUsers = true;
-
-    // Unique email for every account
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -65,7 +64,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -77,5 +75,3 @@ app.MapControllerRoute(
     .WithStaticAssets();
 
 app.Run();
-
-
